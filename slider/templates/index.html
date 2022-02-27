@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+ <body>
+    <div style="width: 100%;">
+        <div style="width: 50%; height: 100px; float: left; background: transparent;"> 
+            <img src="logo.jpeg"  width="600" height="600" />
+        </div>
+         {% if files %}
+        <div style="margin-left: 50%; height: 100px; background: transparent;"> 
+            {% for filename in files %}
+                <img src="results-images/{{filename}}.png">
+            {% endfor %}    
+        </div>
+         {% endif %}
+    </div>
+ </body>
+</html>
+</body> 
+</html> 
+
+
