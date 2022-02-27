@@ -26,10 +26,8 @@ class Generator:
   def get_models_count(self):
     return len(self.models)
 
-
   def predict(self, noise, interpreter_id, identifier):
     print('Gengerate image with GAN model')
-#     noise = tf.convert_to_tensor(noise, dtype=tf.float32)
     noise = noise.astype(np.float32)
     interpreter = self.models[interpreter_id]
     interpreter[0].set_tensor(interpreter[1]['index'], noise)
