@@ -1,3 +1,6 @@
+eeg
+images
+models-tflite
 .DS_Store
 myenv/
 # Byte-compiled / optimized / DLL files

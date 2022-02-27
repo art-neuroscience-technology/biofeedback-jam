@@ -1,9 +1,8 @@
-tensorflow
-numpy
 Pillow
 matplotlib
 python-osc
 numpy
+pandas
 
 
 

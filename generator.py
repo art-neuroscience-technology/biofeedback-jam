@@ -1,13 +1,12 @@
 from PIL import Image
 import numpy as np
 from numpy.random import randn
-import tensorflow as tf
 import math
 import os
-
+from tflite_runtime.interpreter import Interpreter
 
 def load_model(model_path):
-    interpreter = tf.lite.Interpreter(model_path=model_path, num_threads=1)
+    interpreter = Interpreter(model_path=model_path)
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()[0]
     output_details = interpreter.get_output_details()[0]
@@ -30,7 +29,8 @@ class Generator:
 
   def predict(self, noise, interpreter_id, identifier):
     print('Gengerate image with GAN model')
-    noise = tf.convert_to_tensor(noise, dtype=tf.float32)
+#     noise = tf.convert_to_tensor(noise, dtype=tf.float32)
+    noise = noise.astype(np.float32)
     interpreter = self.models[interpreter_id]
     interpreter[0].set_tensor(interpreter[1]['index'], noise)
     interpreter[0].invoke()

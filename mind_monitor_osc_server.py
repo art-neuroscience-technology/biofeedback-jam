@@ -17,7 +17,7 @@ INTERVAL = 10
 # sensors ('TP9','AF7','AF8','TP10') 
 SENSORS=['AF7','AF8']
 
-RESULT_PATH='results-eeg'
+RESULT_PATH='eeg'
 
 WAVES = [] 
 
@@ -62,7 +62,7 @@ def process_signal():
             model_id = random.randint(0, max_model_id)
             
             if running_mode:
-                df = utils.transform_EEG(df, INTERVAL, (1,100), 2)
+                df = utils.transform_EEG(df, INTERVAL, noise_shape=(1,100), scale=2)
                 img = image_generator.predict(df, model_id, save_name)
            
             else:

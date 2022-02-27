@@ -37,6 +37,7 @@ def transform_EEG(df, seconds, noise_shape, scale):
   min_value = df['timestamp'].min()
   df['timestamp'] = round(df['timestamp'] - min_value)
   df = df.groupby(['wave_name','timestamp']).median().reset_index()
+  print(df)
 
   #create columns for each tuple wave_name and sensor_name
   waves_dict = df.groupby('wave_name').groups
