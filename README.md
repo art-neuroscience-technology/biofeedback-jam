@@ -7,7 +7,7 @@ TODO ..
 You can find the code for training the GAN at [neuro-GAN](https://github.com/art-neuroscience-technology/neuro-GAN) 
 
 ## Results 
-At [results-images](results-images) you can find a mosaic for generated images. 
+At [results-images](slides/results-images) you can find a mosaic for generated images. 
 
 ## Min Monitor
 [Mind Monitor](https://mind-monitor.com/) is an app for Muse Headband 

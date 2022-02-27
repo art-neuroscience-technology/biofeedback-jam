@@ -32,6 +32,7 @@ running_mode=True
 def create_identifier():
     global identifier
     identifier = uuid.uuid4()
+    print(f'Created identifier {identifier}')
 
 
 def process_waves():
