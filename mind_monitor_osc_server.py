@@ -60,13 +60,14 @@ def process_signal():
         if not df.empty:
             print(f'Processing waves for {save_name}')
             model_id = random.randint(0, max_model_id)
+
+            #save eeg result
+            df.to_csv(f'{RESULT_PATH}/{save_name}.csv') 
             
             if running_mode:
                 df = utils.transform_EEG(df, INTERVAL, noise_shape=(1,100), scale=2)
                 img = image_generator.predict(df, model_id, save_name)
            
-            else:
-                df.to_csv(f'{RESULT_PATH}/{save_name}.csv') 
         else:
             create_identifier()
 

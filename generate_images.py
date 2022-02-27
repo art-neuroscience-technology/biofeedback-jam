@@ -38,6 +38,3 @@ for i in range(len(noise_files)):
 		images.append(image)
 	except Exception as ex:
 		print(ex)
-
-
-#utils.save_mosaic(images, 'mosaic.png', rowsize=4, colsize=4, imgShape=512)

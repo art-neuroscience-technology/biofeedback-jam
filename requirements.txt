@@ -3,6 +3,7 @@ matplotlib
 python-osc
 numpy
 pandas
+boto3
 
 
 

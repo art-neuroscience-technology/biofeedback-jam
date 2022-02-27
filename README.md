@@ -33,3 +33,17 @@ So, the noise vector is created from this 10x10 matrix, transforming it to a vec
 
 [resize_images.py](resize_images.py): uses ESRGAN pre-trained model for resizing the images keeping the resolution 
 
+[upload_files.py](upload_files.py): to upload files to s3 
+
+Execute the following to upload files at eeg directory to s3
+
+```bash
+	python3 upload_files.py -d eeg -b biofeedback -f eeg -a {ACCESS_KEY} -s {SECRET_KEY}
+```
+
+
+Execute the following to upload files at images directory to s3
+
+```bash
+	python3 upload_files.py -d images -b biofeedback -f images -a {ACCESS_KEY} -s {SECRET_KEY}
+```
