@@ -15,7 +15,7 @@ echo "starting slider"
 
 rm /tmp/slider.log
 
-cd /home/pi/biofeedback-jam/slider/; nohup /usr/bin/python3 main.py >> /tmp/slider.log 2>&1 &
+cd /home/pi/biofeedback-jam/slider/; /usr/bin/python3 main.py >> /tmp/slider.log 2>&1 &
 
 
 
