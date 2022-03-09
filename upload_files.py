@@ -10,6 +10,7 @@ def upload_to_s3(local_file, bucket, s3_file, aws_access_key_id, aws_secret_acce
     s3 = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
 
     try:
+        print(f"Uploading file {local_file}")
         s3.upload_file(local_file, bucket, s3_file)
         return True
     except FileNotFoundError:
@@ -20,7 +21,7 @@ def upload_to_s3(local_file, bucket, s3_file, aws_access_key_id, aws_secret_acce
         return False
 
 
-#Save EEG files at the S3 bucket, creating a folder per identifier  
+#Save files at the S3 bucket, creating a folder per identifier  
 def upload_files(files_dir, bucket, folder_name, aws_access_key_id, aws_secret_access_key):
     for file_name in os.listdir(files_dir):
         identifier = file_name.split('_')[0]
@@ -59,7 +60,10 @@ def main(argv):
          access_key = arg
       elif opt in ("-s", "--secret_key"):
          secret_key = arg
-   upload_files(files_dir, bucket, folder_name, access_key, secret_key)
+   try:
+      upload_files(files_dir, bucket, folder_name, access_key, secret_key)
+   except Exception as ex:
+      print(ex)
    
 if __name__ == "__main__":
    main(sys.argv[1:])

@@ -16,12 +16,16 @@ def show_page():
    response = render_template('index.html')
    filename = ''
    if request.method == 'GET':
-         files = glob.glob("static/images/*")
-         files.sort(key=os.path.getmtime)
-         files.reverse()
-         response = render_template('index.html', files=files)
+       files = glob.glob("static/images/*")
+       if len(files)>0:
+           files.sort(key=os.path.getmtime)
+           files.reverse()
+           identifier = files[0].split('_')[0].split('/')[2]
+           response = render_template('index.html', files=files, identifier=identifier)
+       else:
+           response = render_template('index.html')
    else:
-         response = render_template('index.html')
+       response = render_template('index.html')
    return response  
   
   

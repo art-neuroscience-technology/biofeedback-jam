@@ -5,16 +5,27 @@
 </head>
  <body>
     <div style="width: 100%;">
-        <div style="width: 30%; height: 100px; float: left; background: transparent;"> 
+        <div style="width: 30%; float: left; background: transparent;"> 
             <img src="static/logo.jpeg"  width="600" height="600" />
+	    {% if files %}
+		<div style="width: 50% ;"> 
+                   <p style="font-variant: small-caps; font-size: 15px;"> 
+			</br> </br> </br> </br> </br> </br> </br> </br> 
+			Investigación en humanos </br> 
+			Recuerde firmar el concentimiento </br>
+			Su identificador es
+		   </p>
+ 		   <p style="font-style: italic;  font-variant: normal; font-size: 15px;">{{identifier}}</p>
+		</div>
+	    {% endif %}
         </div>
-         {% if files %}
+       {% if files %}
         <div style="margin-left: 30%; height: 100px; background: transparent;"> 
 		{%for filename in files: %}
 	    		<img src="{{filename}}">
             	{% endfor %}
         </div>
-         {% endif %}
+        {% endif %}
     </div>
  </body>
 </html>
