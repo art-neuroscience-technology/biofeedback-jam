@@ -13,7 +13,7 @@ sleep 5
 
 echo "starting slider"
 
-rm /tmp/slider.log
+rm -f /tmp/slider.log
 
 cd /home/pi/biofeedback-jam/slider/; /usr/bin/python3 main.py >> /tmp/slider.log 2>&1 &
 

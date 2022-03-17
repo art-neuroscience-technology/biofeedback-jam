@@ -125,7 +125,7 @@ def initialize():
     global max_model_id
     global identifier
     global start_timestamp
-    image_generator = Generator(models_path='models-tflite',
+    image_generator = Generator(models_path='tflite',
                                 images_path='/home/pi/biofeedback-jam/slider/static/images')
     max_model_id = image_generator.get_models_count() -1
     identifier = ''
