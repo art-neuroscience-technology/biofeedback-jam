@@ -9,7 +9,7 @@ import random
 #noise files' directory 
 noise_files = os.listdir('noise/')
 
-models_path='models-tflite/'
+models_path='tflite/'
 models = os.listdir(models_path)
 load_models = Generator.load_models(models_path)
 max_model_id = len(models)-1

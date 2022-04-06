@@ -31,6 +31,19 @@ class RepeatedTimer(object):
     def stop(self):
         self._timer.cancel()
         self.is_running = False
+        
+def check_values(df):
+    if df.empty:
+        return False
+    if len(df.columns)==0:
+        return False
+    if not 'AF7' in df.columns:
+        return False
+    if not 'AF8' in df.columns:
+        return False
+    if (df['AF7'].mean()==0.0 and df['AF8'].mean()==0.0):
+        return False
+    return True
 
 def transform_EEG(df, seconds, noise_shape, scale):
   #to seconds
@@ -38,9 +51,9 @@ def transform_EEG(df, seconds, noise_shape, scale):
   df['timestamp'] = round(df['timestamp'] - min_value)
   df = df.groupby(['wave_name','timestamp']).median().reset_index()
 
-  #fill out 0 with random values 
-  df['AF7'] = df.A.replace(to_replace =0.0, value =  np.random.normal(0,1))
-  df['AF8'] = df.A.replace(to_replace =0.0, value =  np.random.normal(0,1))
+  #fill out 0 with random values
+  df['AF7'] = df['AF7'].replace(to_replace =0.0, value =  np.random.normal(0,1))
+  df['AF8'] = df['AF8'].replace(to_replace =0.0, value =  np.random.normal(0,1))
   
   #create columns for each tuple wave_name and sensor_name
   waves_dict = df.groupby('wave_name').groups

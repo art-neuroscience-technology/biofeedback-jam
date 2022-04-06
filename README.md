@@ -12,6 +12,10 @@ At [results-images](slides/results-images) you can find a mosaic for generated i
 ## Min Monitor
 [Mind Monitor](https://mind-monitor.com/) is an app for Muse Headband 
 
+
+## Install
+TODO
+
 ## Process
 
 Waves are saved in a list, every 10 seconds a file is saved, creating a csv file. The file contains 10 rows (one per second, calculated by the median of all the registries for that second) and by 10 columns.

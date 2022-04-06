@@ -1,3 +1,7 @@
+tflite/
+
+to_upload/
+slider/static/images
 eeg
 images
 models-tflite

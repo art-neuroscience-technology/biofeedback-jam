@@ -14,7 +14,7 @@ waves_names=['delta','theta','alpha','beta','gamma']
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("--ip", default="0.0.0.0",
+  parser.add_argument("--ip", default="127.0.0.1",
       help="The ip of the OSC server")
   parser.add_argument("--port", type=int, default=5000,
       help="The port the OSC server is listening on")
