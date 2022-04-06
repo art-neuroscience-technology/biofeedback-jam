@@ -10,8 +10,23 @@ import random
 import utils
 import os
 
+import logging
+
+# create logger
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger('biofeedback')
+logger.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+#OCS listener
 IP='0.0.0.0'
 PORT = 5000
+
+#interval in seconds
 INTERVAL = 10
 
 # sensors ('TP9','AF7','AF8','TP10') 
@@ -59,7 +74,7 @@ def process_signal():
         start_timestamp = time.time()
         df = process_waves()
         if not df.empty:
-            print(f'Processing waves for {save_name}')
+            logger.error(f'Processing waves for {save_name}')
             model_id = random.randint(0, max_model_id)
 
             #save eeg result
@@ -73,7 +88,7 @@ def process_signal():
             create_identifier()
 
     except Exception as ex:
-        print(f'Error:({save_name}) {ex}')
+        logger.error(f'Error:({save_name}) {ex}')
     
 
 """Processes the information corresponding a wave"""  
@@ -93,7 +108,7 @@ def wave_handler(address, *args):
         wave_value = [time.time(), wave_name] + [args[1],args[2]]
         WAVES.append(wave_value)
     except Exception as ex:
-        print(ex)
+        logger.error(ex)
 
 
 
@@ -113,7 +128,7 @@ def get_dispatcher():
 def start_blocking_server(ip, port):
     server = ThreadingOSCUDPServer(
       (ip, port), dispatcher)
-    print("Serving on {}".format(server.server_address))
+    logger.info("Serving on {}".format(server.server_address))
     server.serve_forever()
 
 
@@ -126,12 +141,12 @@ def initialize():
     max_model_id = image_generator.get_models_count() -1
     identifier = ''
     start_timestamp = -1
-    print('Initialization completed')
+    logger.info('Initialization completed')
 
 if __name__ == '__main__':
     global processing_thread
     initialize()
-    processing_thread = utils.RepeatedTimer(INTERVAL, process_signal)
+    processing_thread = utils.RepeatedTimer(INTERVAL + 1, process_signal)
     dispatcher = get_dispatcher()
     start_blocking_server(IP, PORT)
 

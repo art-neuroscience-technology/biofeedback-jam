@@ -45,5 +45,5 @@ Execute the following to upload files at eeg directory to s3
 Execute the following to upload files at images directory to s3
 
 ```bash
-	python3 upload_files.py -d images -b biofeedback -f images -a {ACCESS_KEY} -s {SECRET_KEY}
+	python3 upload_files.py -d to_upload -b biofeedback -f images -a {ACCESS_KEY} -s {SECRET_KEY}
 ```
