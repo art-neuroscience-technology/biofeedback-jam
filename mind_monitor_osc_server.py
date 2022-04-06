@@ -13,7 +13,8 @@ import os
 import logging
 
 # create logger
-logging.config.fileConfig('logging.conf')
+logging.basicConfig(filename='logging.conf')
+
 logger = logging.getLogger('biofeedback')
 logger.setLevel(logging.INFO)
 ch = logging.StreamHandler()
