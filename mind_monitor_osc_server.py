@@ -44,8 +44,9 @@ running_mode=True
 
 def reset():
     for file_name in os.listdir('/home/pi/biofeedback-jam/slider/static/images'):
-      os.rename(f'/home/pi/biofeedback-jam/slider/static/images/{file_name}', f'/home/pi/biofeedback-jam/to_upload/{file_name}')
-
+      #os.rename(f'/home/pi/biofeedback-jam/slider/static/images/{file_name}', f'/home/pi/biofeedback-jam/to_upload/{file_name}')
+      os.remove(f'/home/pi/biofeedback-jam/slider/static/images/{file_name}')
+      
 def create_identifier():
     global identifier
     identifier = uuid.uuid4()
@@ -84,7 +85,7 @@ def process_signal():
             model_id = random.randint(0, max_model_id)
             save_name = f'{identifier}_{start_timestamp}'
             #save eeg result
-            df.to_csv(f'{RESULT_PATH}/{save_name}.csv') 
+            #df.to_csv(f'{RESULT_PATH}/{save_name}.csv') 
             
             if running_mode:
                 df = utils.transform_EEG(df, INTERVAL, noise_shape=(1,100), scale=2)
