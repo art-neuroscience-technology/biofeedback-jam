@@ -1,7 +1,7 @@
 # BIOFEEDBACK
 This projects uses a pre-trained GAN in order to generate images from EEG signals.       
 Capture EEG activity with Muse Headband and process it, transforming it to a vector, which is input for the GAN. 
-TODO .. 
+
 
 ## GAN
 You can find the code for training the GAN at [neuro-GAN](https://github.com/art-neuroscience-technology/neuro-GAN) 
