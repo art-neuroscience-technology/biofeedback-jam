@@ -42,16 +42,40 @@ max_model_id = 0
 
 running_mode=True
 
+#mosaic values 
+rowsize = 4
+colsize = 4 
+imgShape = 64
+bucket = 'biofeedback'
+aws_access_key_id, aws_secret_access_key = '', ''
+
 def reset():
-    for file_name in os.listdir('/home/pi/biofeedback-jam/slider/static/images'):
-      #os.rename(f'/home/pi/biofeedback-jam/slider/static/images/{file_name}', f'/home/pi/biofeedback-jam/to_upload/{file_name}')
-      os.remove(f'/home/pi/biofeedback-jam/slider/static/images/{file_name}')
+    try:
+        global identifier
+        images = glob.glob('/home/pi/biofeedback-jam/slider/static/images/*.png')
+
+        if len(images) >= rowsize*colsize:
+            utils.save_mosaic('/home/pi/biofeedback-jam/slider/static/images', 
+                f'/home/pi/biofeedback-jam/result/{identifier}', rowsize, colsize, imgShape)
+            ok = s3.upload_file(f'/home/pi/biofeedback-jam/result/{identifier}.png', 
+                bucket, 
+                f'{identifier}.png', 
+                aws_access_key_id, 
+                aws_secret_access_key)
+            os.remove(f'/home/pi/biofeedback-jam/result/{identifier}.png')
+
+        for file_name in images:
+          os.remove(f'/home/pi/biofeedback-jam/slider/static/images/{file_name}')
+        identifier = ''
+    except Exception as ex:
+        logger.error(f'Error:{ex}')
+    
+
       
 def create_identifier():
     global identifier
     identifier = uuid.uuid4()
     print(f'Created identifier {identifier}')
-    reset()
 
 def process_waves():
   global WAVES
@@ -124,7 +148,8 @@ def get_dispatcher():
     dispatcher.map("/muse/elements/alpha_absolute", wave_handler)
     dispatcher.map("/muse/elements/beta_absolute", wave_handler)
     dispatcher.map("/muse/elements/gamma_absolute", wave_handler)
-    #dispatcher.map("/muse/elements/horseshoe", horseshoe_handler)
+    dispatcher.map("/start", create_identifier)
+    dispatcher.map('/stop', reset)
     
     return dispatcher
 

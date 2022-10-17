@@ -82,19 +82,48 @@ def transform_EEG(df, seconds, noise_shape, scale):
   df = 2.*(df - np.min(df))/np.ptp(df)-scale
   return df
 
-def save_mosaic(images, result_path, rowsize, colsize, imgShape):
-  margin = 16
-  image_array = np.full((margin + (rowsize * (imgShape+margin)), 
-    margin + (colsize * (imgShape+margin)), 3), 
-  255, dtype=np.uint8)
-  image_count = 0
-  for row in range(rowsize):
-    for col in range(colsize):
-      r = row * (imgShape+margin) + margin
-      c = col * (imgShape+margin) + margin
-      image_array[r:r+imgShape,c:c+imgShape] = images[image_count] 
-      image_count += 1
 
-  im = Image.fromarray(image_array)
-  im.save(result_path)
+def get_concat_h_multi_resize(im_list, resample=Image.BICUBIC):
+    min_height = min(im.height for im in im_list)
+    im_list_resize = [im.resize((int(im.width * min_height / im.height), min_height),resample=resample)
+                      for im in im_list]
+    total_width = sum(im.width for im in im_list_resize)
+    dst = Image.new('RGB', (total_width, min_height))
+    pos_x = 0
+    for im in im_list_resize:
+        dst.paste(im, (pos_x, 0))
+        pos_x += im.width
+    return dst
+
+def get_concat_v_multi_resize(im_list, resample=Image.BICUBIC):
+    min_width = min(im.width for im in im_list)
+    im_list_resize = [im.resize((min_width, int(im.height * min_width / im.width)),resample=resample)
+                      for im in im_list]
+    total_height = sum(im.height for im in im_list_resize)
+    dst = Image.new('RGB', (min_width, total_height))
+    pos_y = 0
+    for im in im_list_resize:
+        dst.paste(im, (0, pos_y))
+        pos_y += im.height
+    return dst
+
+
+def get_concat_tile_resize(im_list_2d, resample=Image.BICUBIC):
+    im_list_v = [get_concat_h_multi_resize(im_list_h, resample=resample) for im_list_h in im_list_2d]
+    return get_concat_v_multi_resize(im_list_v, resample=resample)
+
+
+def save_mosaic(images, result_path, rowsize, colsize):
+    try:
+        images = random.choices(images, int(rowsize*colsize))
+        index = int(len(images)/colsize)
+        images = [Image.open(item) for item in images]
+        get_concat_tile_resize([images[:index],
+            images[index:index*2], 
+            images[index*2:index*3], 
+            images[index*3:index*4]]).save(result_path)
+
+    except Exception as ex:
+        print(f'Error:{ex}')
+    
     
