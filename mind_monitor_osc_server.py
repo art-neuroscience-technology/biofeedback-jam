@@ -73,9 +73,12 @@ def reset():
 
       
 def create_identifier():
-    global identifier
-    identifier = uuid.uuid4()
-    print(f'Created identifier {identifier}')
+    try:
+        global identifier
+        identifier = uuid.uuid4()
+        print(f'Created identifier {identifier}')
+    except Exception as ex:
+        logger.error(f'Error:{ex}')
 
 def process_waves():
   global WAVES
@@ -114,9 +117,6 @@ def process_signal():
             if running_mode:
                 df = utils.transform_EEG(df, INTERVAL, noise_shape=(1,100), scale=2)
                 image_generator.predict(df, model_id, save_name)
-           
-        else:
-            identifier=''
 
     except Exception as ex:
         logger.error(f'Error:({save_name}) {ex}')
