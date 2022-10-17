@@ -4,6 +4,7 @@ import numpy as np
 from threading import Timer
 from functools import reduce
 import pandas as pd
+import random
 
 
 """Calls function {function} every {interval} seconds """
@@ -113,17 +114,17 @@ def get_concat_tile_resize(im_list_2d, resample=Image.BICUBIC):
     return get_concat_v_multi_resize(im_list_v, resample=resample)
 
 
-def save_mosaic(images, result_path, rowsize, colsize):
+def save_mosaic(images, result_path, rowsize, logger):
     try:
-        images = random.choices(images, int(rowsize*colsize))
-        index = int(len(images)/colsize)
+        images = np.random.choice(images,rowsize*rowsize)
         images = [Image.open(item) for item in images]
-        get_concat_tile_resize([images[:index],
-            images[index:index*2], 
-            images[index*2:index*3], 
-            images[index*3:index*4]]).save(result_path)
+        image_list = []
+        for i in range(1,rowsize+1):
+            image_list.append(images[rowsize*(i-1):rowsize*i])
+            
+        get_concat_tile_resize(image_list).save(result_path)
 
     except Exception as ex:
-        print(f'Error:{ex}')
+        logger.error(f'Error:{ex}')
     
     

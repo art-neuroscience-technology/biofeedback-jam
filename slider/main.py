@@ -9,13 +9,14 @@ from pythonosc import udp_client
 import uuid
 import time
 
-ip_mind_monitor = "192.168.0.199"
-port_mind_monitor = 5001
+ip_mind_monitor = "192.168.0.175"
+port_mind_monitor = 5000
  
-
+identifier = ''
 app = Flask(__name__)
 
 def process_files():
+    global identifier
     files = glob.glob("static/images/*.png")
     if len(files)>0:
         files.sort(key=os.path.getmtime)
@@ -23,36 +24,33 @@ def process_files():
         identifier = files[0].split('_')[0].split('/')[2]
         return files, identifier
     else:
-        return [], ''
+        return [], identifier
 
 @app.route('/', methods = ['GET', 'POST'])
 def show():
+   global identifier
    response = render_template('index.html')
    filename = ''
-   if request.method == 'GET':
-       files, identifier = process_files()
-       if len(files)>0:
-           response = render_template('index.html', files=files, identifier=identifier)
-       else:
-           response = render_template('index.html')
+   files, identifier = process_files()
+   if len(files)>0:
+       response = render_template('index.html', files=files, identifier=identifier)
    else:
-       response = render_template('index.html')
+       response = render_template('index.html', identifier=identifier)
    return response  
   
 @app.route('/start', methods=['GET', 'POST'])  
 def start():
+   global identifier
    if request.method == 'GET':
     return show()
     
-   #generate identifier
-   if request.form.get('identifier'):
-        return show() 
    identifier = uuid.uuid4()
    print(f'Created identifier {identifier}') 
    
    #initialize client
    client = udp_client.SimpleUDPClient(ip_mind_monitor, port_mind_monitor)
    client.send_message('/start', str(identifier))
+   time.sleep(10)
    response = render_template('index.html', identifier=identifier, visibility="hidden")
    return response
 
@@ -61,11 +59,8 @@ def start():
 def stop():
    if request.method == 'GET':
       return show()
-   identifier = request.form.get("identifier")   
-   if identifier=='':
-      return render_template('index.html', identifier='', visibility="visible")
    client = udp_client.SimpleUDPClient(ip_mind_monitor, port_mind_monitor)
-   client.send_message('/stop', str(identifier))
+   client.send_message('/stop','')
    time.sleep(10)
    response = render_template('index.html', identifier='', visibility="visible")
    return response

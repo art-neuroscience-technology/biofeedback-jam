@@ -3,13 +3,13 @@ from pythonosc.osc_server import BlockingOSCUDPServer, ThreadingOSCUDPServer
 import time
 import numpy as np
 import socket
-import uuid
 import pandas as pd 
 from generator import Generator
-import random
 import utils
 import os
-
+import glob
+import random
+import s3_uploader
 import logging
 
 # create logger
@@ -31,8 +31,6 @@ INTERVAL = 10
 # sensors ('TP9','AF7','AF8','TP10') 
 SENSORS=['AF7','AF8']
 
-RESULT_PATH='/home/pi/biofeedback-jam/eeg'
-
 WAVES = [] 
 
 identifier = ''
@@ -44,42 +42,46 @@ running_mode=True
 
 #mosaic values 
 rowsize = 4
-colsize = 4 
-imgShape = 64
+
 bucket = 'biofeedback'
 aws_access_key_id, aws_secret_access_key = '', ''
 
-def reset():
+def reset(arg1, arg2):
+    global identifier        
     try:
-        global identifier
+    
         images = glob.glob('/home/pi/biofeedback-jam/slider/static/images/*.png')
+       
+        if len(images)>0:
+            identifier = images[0].split('_')[0].split('images/')[1]
+        
+        logger.info(f'Recieve END sing from identifier {identifier}')
 
-        if len(images) >= rowsize*colsize:
-            utils.save_mosaic('/home/pi/biofeedback-jam/slider/static/images', 
-                f'/home/pi/biofeedback-jam/result/{identifier}', rowsize, colsize, imgShape)
-            ok = s3.upload_file(f'/home/pi/biofeedback-jam/result/{identifier}.png', 
+        if (len(images) >= rowsize*rowsize):
+            utils.save_mosaic(images, 
+                f'/home/pi/biofeedback-jam/result/{identifier}.png', rowsize, logger)
+            ok = s3_uploader.upload_to_s3(f'/home/pi/biofeedback-jam/result/{identifier}.png', 
                 bucket, 
                 f'{identifier}.png', 
                 aws_access_key_id, 
-                aws_secret_access_key)
-            os.remove(f'/home/pi/biofeedback-jam/result/{identifier}.png')
+                aws_secret_access_key,
+                logger)
+            if ok:
+                os.remove(f'/home/pi/biofeedback-jam/result/{identifier}.png')
 
         for file_name in images:
-          os.remove(f'/home/pi/biofeedback-jam/slider/static/images/{file_name}')
+          os.remove(file_name)
         identifier = ''
     except Exception as ex:
         logger.error(f'Error:{ex}')
     
 
       
-def create_identifier():
-    try:
-        global identifier
-        identifier = uuid.uuid4()
-        print(f'Created identifier {identifier}')
-    except Exception as ex:
-        logger.error(f'Error:{ex}')
-
+def set_identifier(arg1,arg2):
+    global identifier
+    identifier = arg2
+    logger.info(f'Recieve START sing wit identifier  {identifier}')
+    
 def process_waves():
   global WAVES
   df = pd.DataFrame()
@@ -106,7 +108,7 @@ def process_signal():
         
         if utils.check_values(df):
             if identifier=='':
-                create_identifier()
+                return
                 
             logger.info(f'({identifier}) Processing waves for {start_timestamp}')
             model_id = random.randint(0, max_model_id)
@@ -148,7 +150,7 @@ def get_dispatcher():
     dispatcher.map("/muse/elements/alpha_absolute", wave_handler)
     dispatcher.map("/muse/elements/beta_absolute", wave_handler)
     dispatcher.map("/muse/elements/gamma_absolute", wave_handler)
-    dispatcher.map("/start", create_identifier)
+    dispatcher.map("/start", set_identifier)
     dispatcher.map('/stop', reset)
     
     return dispatcher

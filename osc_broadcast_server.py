@@ -12,7 +12,7 @@ import sys, getopt
 waves_names=['delta','theta','alpha','beta','gamma']
 
 
-listeners = [{ 'ip' : "192.168.0.199", 'port' : 5001 }, { 'ip' : "192.168.0.199", 'port' : 5000 }, { 'ip' : "192.168.0.199", 'port' : 5000 }] 
+listeners = [{ 'ip' : "192.168.0.175", 'port' : 5001 }, { 'ip' : "192.168.0.199", 'port' : 5000 }, { 'ip' : "192.168.0.199", 'port' : 5000 }] 
 
 
 ip = "0.0.0.0"
@@ -24,11 +24,6 @@ def forward_message(address: str, *args):
     
 
 def main(argv):
-  
-   #generate identifier 
-   identifier = uuid.uuid4()
-   print(f'Created identifier {identifier}') 
-   
    #initialize clients
    for l in listeners:
     l['client'] = udp_client.SimpleUDPClient(l['ip'], l['port'])

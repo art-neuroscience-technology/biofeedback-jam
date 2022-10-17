@@ -30,7 +30,7 @@
             	{% endfor %}
         </div>
         {% else %}
-         <div id='defaultView' style="margin-left: 50%; margin-top: 0%; background: transparent;display: block; visibility:{{ visibility }}">
+         <div id='defaultView' style="margin-left: 50%; margin-top: 0%; background: transparent;display: block; visibility:{{ visibilityStart }}">
 
          	<p style="font-family: fantasy; font-size: 15px; color: white;">
          		<br><br>
@@ -41,18 +41,17 @@
 
          		The objective of this experience is to reflect on two contemporary issues: <br> Our relationship with Artificial Intelligence, as well as its algorithms and the production of individual and collective art.<br>
          	</p>
-
-      
 			<form action="/start" method="post" id="nameformStart">
 				<input type="submit" name="identifier" value="{{ identifier }}" style="visibility:  hidden">
 			</form>
-
+	
 			<p style="font-family: fantasy; font-size: 15px; color: white;"><br>ARE YOU READY TO LIVE THE EXPERIENCE?</p>
 
 			<button type="submit" form="nameformStart" value="Submit" style="display: block; width: 20%; border: none; border-radius:12px; background-color: white; padding: 14px 28px; font-size: 16px; cursor: pointer; text-align: center; font-variant: small-caps;">Start!</button>
-
+	
         </div>
         {% endif %}
+ 	
     </div>
 
 
