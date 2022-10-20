@@ -4,50 +4,51 @@
 	<meta http-equiv="refresh" content="10" url="index.html">
 
 </head>
- <body style="height: 100%; width: 100%;  background: black">
+ <body style="height: 100%; width: 100%;  background: black">  
     <div style="width: 100%">
         <div style="margin-left: 5%; margin-top: 10%; width: 30%; float: left; background: transparent;"> 
-            <img src="static/BIO Y ANT.png"  width="400" height="450"/>
-	    {% if files %}
-		<div style="width: 100% ;"> 
+		<img src="static/BIO Y ANT.png"  width="400" height="450"/>
+	 
+		{% if identifier %}
+       		 <div style="width: 100% ;"> 
                    <p style="font-variant: small-caps; font-size: 15px; color: white;">
                         </br> </br> </br> </br> </br> </br> 
 			Your identifier is:
- 		   <form action="/stop" method="post" id="nameformEnd">
-			 	<input type="submit" name="identifier" value="{{ identifier }}" style="background-color: black; font-style: italic;  font-variant: normal; font-size: 15px; color: white;">
-			</form>
+ 		  </div>
+		 <form action="/stop" method="post" id="nameformEnd">
+			<input type="submit" name="identifier" value="{{ identifier }}" style="background-color: black; font-style: italic;  font-variant: normal; font-size: 15px; color: white;">
+		</form>
 
-			<p style="font-family: fantasy; font-size: 15px; color: white;"><br>DO YOU WANT TO END THE EXPERIENCE?</p>
+		<p style="font-family: fantasy; font-size: 15px; color: white;"><br>DO YOU WANT TO END THE EXPERIENCE?</p>
 
-			<button type="submit" form="nameformEnd" value="Submit" style="display: block; width: 20%; border: none; border-radius:12px; background-color: white; padding: 14px 28px; font-size: 16px; cursor: pointer; text-align: center; font-variant: small-caps;">End!</button>
-		</div>
-	    {% endif %}
-        </div>
+		<button type="submit" form="nameformEnd" value="Submit" style="display: block; width: 20%; border: none; border-radius:12px; background-color: white; padding: 14px 28px; font-size: 16px; cursor: pointer; text-align: center; font-variant: small-caps;">End!</button>
+	 </div>	
+        
+       
        {% if files %}
         <div style="margin-left: 30%; height: 100px; background: transparent;"> 
 		{%for filename in files: %}
 	    		<img src="{{filename}}">
             	{% endfor %}
         </div>
+       {% endif %}
+
         {% else %}
-         <div id='defaultView' style="margin-left: 50%; margin-top: 0%; background: transparent;display: block; visibility:{{ visibilityStart }}">
+         <div id='defaultView' background: transparent;display: block; visibility:{{ visibilityStart }}">
 
          	<p style="font-family: fantasy; font-size: 15px; color: white;">
          		<br><br>
          		ANT is a multidisciplinary group that through the integration of Art, <br>Neuroscience, and Technology, seeks to generate both critical and playful devices that reflect on contemporary themes. <br> 
          		Promoting Citizen Neuroscience, Citizen Art, and Citizen Technology. <br><br><br>
 
-         		BIOFEEDBACK provides an unique experience where you generate art from your brain waves.<br>On the one hand sound and on the other images.<br><br>
-
-         		The objective of this experience is to reflect on two contemporary issues: <br> Our relationship with Artificial Intelligence, as well as its algorithms and the production of individual and collective art.<br>
-         	</p>
-			<form action="/start" method="post" id="nameformStart">
-				<input type="submit" name="identifier" value="{{ identifier }}" style="visibility:  hidden">
-			</form>
+         		BIOFEEDBACK provides an unique experience where generating art from your brain waves.</p>
+		<form action="/start" method="post" id="nameformStart">
+			<input type="submit" name="identifier" value="{{ identifier }}" style="visibility:  hidden">
+		</form>
 	
-			<p style="font-family: fantasy; font-size: 15px; color: white;"><br>ARE YOU READY TO LIVE THE EXPERIENCE?</p>
+		<p style="font-family: fantasy; font-size: 15px; color: white;"><br>ARE YOU READY TO LIVE THE EXPERIENCE?</p>
 
-			<button type="submit" form="nameformStart" value="Submit" style="display: block; width: 20%; border: none; border-radius:12px; background-color: white; padding: 14px 28px; font-size: 16px; cursor: pointer; text-align: center; font-variant: small-caps;">Start!</button>
+		<button type="submit" form="nameformStart" value="Submit" style="display: block; width: 20%; border: none; border-radius:12px; background-color: white; padding: 14px 28px; font-size: 16px; cursor: pointer; text-align: center; font-variant: small-caps;">Start!</button>
 	
         </div>
         {% endif %}
