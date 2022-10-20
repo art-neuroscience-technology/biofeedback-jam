@@ -13,6 +13,7 @@ import logging
 import utils
 import shutil
 
+
 # create logger
 logger = logging.getLogger('biofeedback')
 logger.setLevel(logging.INFO)
@@ -92,6 +93,9 @@ def stop():
             logger.info('Generate mosaic')
             result = f'/home/pi/biofeedback-jam/result/{identifier}.png'
             utils.save_mosaic(images, result, rowsize)
+            qr_path = utils.generate_qr(identifier)
+            #TODO print qr
+            #os.remove(qr_path)
             logger.info(f"Uploading file {result}")
             ok = s3_uploader.upload_to_s3(result, 
                 bucket, 

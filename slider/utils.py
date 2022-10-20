@@ -1,5 +1,6 @@
 from PIL import Image
 import numpy as np
+import qrcode
 
 def get_concat_h_multi_resize(im_list, resample=Image.BICUBIC):
     min_height = min(im.height for im in im_list)
@@ -39,5 +40,20 @@ def save_mosaic(images, result_path, rowsize):
             image_list.append(images[rowsize*(i-1):rowsize*i])
             
         get_concat_tile_resize(image_list).save(result_path)
+
+def generate_qr(identifier):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(f'http://doafy.me/{identifier}')
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+    qr_path = f"/home/pi/biofeedback-jam/qrs/{identifier}.png"
+    img.save(qr_path)
+    return qr_path
 
     

@@ -3,7 +3,7 @@ from threading import Timer
 from functools import reduce
 import pandas as pd
 import random
-
+import qrcode
 
 """Calls function {function} every {interval} seconds """
 class RepeatedTimer(object):
@@ -81,4 +81,16 @@ def transform_EEG(df, seconds, noise_shape, scale):
   df = 2.*(df - np.min(df))/np.ptp(df)-scale
   return df
 
-    
+def generate_qr(identifier):
+    import qrcode
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(f'https://www.daofy.me/{identifier}')
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+    return img 
