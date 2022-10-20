@@ -10,6 +10,8 @@ import uuid
 import time
 import s3_uploader
 import logging
+import utils
+import shutil
 
 # create logger
 logger = logging.getLogger('biofeedback')
@@ -47,7 +49,7 @@ def show():
    filename = ''
    images = get_images()
    if len(images)>0:
-       response = render_template('index.html', files=files, identifier=identifier)
+       response = render_template('index.html', files=images, identifier=identifier)
    else:
        response = render_template('index.html', identifier=identifier)
    return response  
@@ -60,6 +62,10 @@ def start():
    
     #remove images in folder 
     images = get_images()
+    for file_name in images:
+        os.remove(file_name)
+        
+    images = glob.glob('/home/pi/biofeedback-jam/result/*.png')
     for file_name in images:
         os.remove(file_name)
 
@@ -83,16 +89,20 @@ def stop():
 
         #generate mosaic
         if (len(images) >= rowsize*rowsize):
-            utils.save_mosaic(images, f'/home/pi/biofeedback-jam/result/{identifier}.png', rowsize)
-            ok = s3_uploader.upload_to_s3(f'/home/pi/biofeedback-jam/result/{identifier}.png', 
+            logger.info('Generate mosaic')
+            result = f'/home/pi/biofeedback-jam/result/{identifier}.png'
+            utils.save_mosaic(images, result, rowsize)
+            logger.info(f"Uploading file {result}")
+            ok = s3_uploader.upload_to_s3(result, 
                 bucket, 
                 f'{identifier}.png', 
                 aws_access_key_id, 
-                aws_secret_access_key)
-
+                aws_secret_access_key, logger)
             if ok:
-                os.remove(f'/home/pi/biofeedback-jam/result/{identifier}.png')
-        
+                os.remove(result)
+            else:
+                shutil.move(result, f'/home/pi/biofeedback-jam/to_upload/')
+
         for file_name in images:
             os.remove(file_name)
 
@@ -103,6 +113,8 @@ def stop():
     time.sleep(5)
     return render_template('index.html', identifier='', visibility="visible")
 
+    
+    
 
 if __name__ == '__main__':
     app.run(debug=True, port=7000)
