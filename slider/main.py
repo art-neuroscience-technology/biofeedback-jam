@@ -8,31 +8,45 @@ import sys, getopt
 from pythonosc import udp_client
 import uuid
 import time
+import s3_uploader 
 
-ip_mind_monitor = "192.168.0.175"
-port_mind_monitor = 5000
+# create logger
+logger = logging.getLogger('biofeedback')
+logger.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(lineno)d - %(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+bucket = 'biofeedback'
+aws_access_key_id, aws_secret_access_key = '', ''
  
 identifier = ''
+
+#mosaic values 
+rowsize = 4
+
 app = Flask(__name__)
 
-def process_files():
+
+def get_images():
     global identifier
-    files = glob.glob("static/images/*.png")
+    images = glob.glob("static/images/*.png")
     if len(files)>0:
-        files.sort(key=os.path.getmtime)
-        files.reverse()
-        identifier = files[0].split('_')[0].split('/')[2]
-        return files, identifier
+        images.sort(key=os.path.getmtime)
+        images.reverse()
+        return images
     else:
-        return [], identifier
+        return []
 
 @app.route('/', methods = ['GET', 'POST'])
 def show():
    global identifier
    response = render_template('index.html')
    filename = ''
-   files, identifier = process_files()
-   if len(files)>0:
+   images = get_images()
+   if len(images)>0:
        response = render_template('index.html', files=files, identifier=identifier)
    else:
        response = render_template('index.html', identifier=identifier)
@@ -40,35 +54,55 @@ def show():
   
 @app.route('/start', methods=['GET', 'POST'])  
 def start():
-   global identifier
-   if request.method == 'GET':
-    return show()
-    
-   identifier = uuid.uuid4()
-   print(f'Created identifier {identifier}') 
+    global identifier
+    if request.method == 'GET':
+        return redirect(url_for('/'))
    
-   #initialize client
-   client = udp_client.SimpleUDPClient(ip_mind_monitor, port_mind_monitor)
-   client.send_message('/start', str(identifier))
-   time.sleep(10)
-   response = render_template('index.html', identifier=identifier, visibility="hidden")
-   return response
+    #remove images in folder 
+    images = get_images()
+    for file_name in images:
+        os.remove(file_name)
+
+    #generate new indetifier  
+    identifier = uuid.uuid4()
+    logger.info(f'Created identifier {identifier}') 
+   
+    time.sleep(5)
+    return render_template('index.html', identifier=identifier, visibility="hidden")
 
 
 @app.route('/stop', methods=['GET', 'POST'])  
 def stop():
-   if request.method == 'GET':
-      return show()
-   client = udp_client.SimpleUDPClient(ip_mind_monitor, port_mind_monitor)
-   client.send_message('/stop','')
-   time.sleep(10)
-   response = render_template('index.html', identifier='', visibility="visible")
-   return response
+    global identifier
+    if request.method == 'GET':
+        return render_template('index.html', identifier=identifier, visibility="hidden")
+    try:
+        images = get_images()
+        if len(images)>0:
+            logger.info(f'Recieve END sing from identifier {identifier}')
+
+        #generate mosaic
+        if (len(images) >= rowsize*rowsize):
+            utils.save_mosaic(images, f'/home/pi/biofeedback-jam/result/{identifier}.png', rowsize)
+            ok = s3_uploader.upload_to_s3(f'/home/pi/biofeedback-jam/result/{identifier}.png', 
+                bucket, 
+                f'{identifier}.png', 
+                aws_access_key_id, 
+                aws_secret_access_key)
+
+            if ok:
+                os.remove(f'/home/pi/biofeedback-jam/result/{identifier}.png')
+        
+        for file_name in images:
+            os.remove(file_name)
+
+    except Exception as ex:
+        logger.error(f'Error:{ex}')
+
+    identifier = ''
+    time.sleep(5)
+    return render_template('index.html', identifier='', visibility="visible")
 
 
-
-
-# main driver function
 if __name__ == '__main__':
-
     app.run(debug=True, port=7000)

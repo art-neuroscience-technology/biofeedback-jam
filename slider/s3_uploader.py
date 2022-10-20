@@ -6,18 +6,24 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 
 
-def upload_to_s3(local_file, bucket, s3_file, aws_access_key_id, aws_secret_access_key, logger):
-
+def upload_to_s3(local_file, bucket, s3_file, aws_access_key_id, aws_secret_access_key):
     try:
-        s3 = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+        s3 = boto3.client('s3', 
+            aws_access_key_id=aws_access_key_id, 
+            aws_secret_access_key=aws_secret_access_key
+            )
+
         logger.info(f"Uploading file {local_file}")
         response = s3.upload_file(local_file, bucket, s3_file)
         logger.info(response)
+
         return True
+        
     except FileNotFoundError:
-        logger.error(f"The file {local_file} was not found")
+        print(f"The file {local_file} was not found")
         return False
+
     except NoCredentialsError:
-        logger.error("Credentials not available")
+        print("Credentials not available")
         return False
 

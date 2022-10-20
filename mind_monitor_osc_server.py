@@ -33,54 +33,12 @@ SENSORS=['AF7','AF8']
 
 WAVES = [] 
 
-identifier = ''
 start_timestamp = -1
 image_generator = None
 max_model_id = 0
 
 running_mode=True
 
-#mosaic values 
-rowsize = 4
-
-bucket = 'biofeedback'
-aws_access_key_id, aws_secret_access_key = '', ''
-
-def reset(arg1, arg2):
-    global identifier        
-    try:
-    
-        images = glob.glob('/home/pi/biofeedback-jam/slider/static/images/*.png')
-       
-        if len(images)>0:
-            identifier = images[0].split('_')[0].split('images/')[1]
-        
-        logger.info(f'Recieve END sing from identifier {identifier}')
-
-        if (len(images) >= rowsize*rowsize):
-            utils.save_mosaic(images, 
-                f'/home/pi/biofeedback-jam/result/{identifier}.png', rowsize, logger)
-            ok = s3_uploader.upload_to_s3(f'/home/pi/biofeedback-jam/result/{identifier}.png', 
-                bucket, 
-                f'{identifier}.png', 
-                aws_access_key_id, 
-                aws_secret_access_key,
-                logger)
-            if ok:
-                os.remove(f'/home/pi/biofeedback-jam/result/{identifier}.png')
-
-        for file_name in images:
-          os.remove(file_name)
-        identifier = ''
-    except Exception as ex:
-        logger.error(f'Error:{ex}')
-    
-
-      
-def set_identifier(arg1,arg2):
-    global identifier
-    identifier = arg2
-    logger.info(f'Recieve START sing wit identifier  {identifier}')
     
 def process_waves():
   global WAVES
@@ -95,7 +53,6 @@ def process_waves():
 
 def process_signal():
     global start_timestamp
-    global identifier
     global running_mode
     
     if start_timestamp==-1:
@@ -107,12 +64,10 @@ def process_signal():
         start_timestamp = time.time()                
         
         if utils.check_values(df):
-            if identifier=='':
-                return
                 
-            logger.info(f'({identifier}) Processing waves for {start_timestamp}')
+            logger.info(f'Processing waves for {start_timestamp}')
             model_id = random.randint(0, max_model_id)
-            save_name = f'{identifier}_{start_timestamp}'
+            save_name = f'{start_timestamp}'
             #save eeg result
             #df.to_csv(f'{RESULT_PATH}/{save_name}.csv') 
             
@@ -128,7 +83,6 @@ def process_signal():
 def wave_handler(address, *args):
     global WAVES
     global start_timestamp
-    global identifier
     try:
         if start_timestamp==-1:
             start_timestamp = time.time() 
@@ -150,8 +104,6 @@ def get_dispatcher():
     dispatcher.map("/muse/elements/alpha_absolute", wave_handler)
     dispatcher.map("/muse/elements/beta_absolute", wave_handler)
     dispatcher.map("/muse/elements/gamma_absolute", wave_handler)
-    dispatcher.map("/start", set_identifier)
-    dispatcher.map('/stop', reset)
     
     return dispatcher
 
@@ -166,12 +118,10 @@ def start_blocking_server(ip, port):
 def initialize():
     global image_generator
     global max_model_id
-    global identifier
     global start_timestamp
     image_generator = Generator(models_path='tflite',
                                 images_path='/home/pi/biofeedback-jam/slider/static/images')
     max_model_id = image_generator.get_models_count() -1
-    identifier = ''
     start_timestamp = -1
     logger.info('Initialization completed')
 

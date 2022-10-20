@@ -114,8 +114,7 @@ def get_concat_tile_resize(im_list_2d, resample=Image.BICUBIC):
     return get_concat_v_multi_resize(im_list_v, resample=resample)
 
 
-def save_mosaic(images, result_path, rowsize, logger):
-    try:
+def save_mosaic(images, result_path, rowsize):
         images = np.random.choice(images,rowsize*rowsize)
         images = [Image.open(item) for item in images]
         image_list = []
@@ -124,7 +123,5 @@ def save_mosaic(images, result_path, rowsize, logger):
             
         get_concat_tile_resize(image_list).save(result_path)
 
-    except Exception as ex:
-        logger.error(f'Error:{ex}')
     
     
