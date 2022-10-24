@@ -3,60 +3,82 @@ from threading import Timer
 from functools import reduce
 import pandas as pd
 import random
-import qrcode
-from PIL import Image
-import subprocess
-import shutil
 
 
-def generate_qr(identifier, path):
-    import qrcode
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(f'https://www.daofy.me/{identifier}')
-    qr.make(fit=True)
+"""Calls function {function} every {interval} seconds """
+class RepeatedTimer(object):
+    def __init__(self, interval, function, *args, **kwargs):
+        self._timer     = None
+        self.interval   = interval
+        self.function   = function
+        self.args       = args
+        self.kwargs     = kwargs
+        self.is_running = False
+        self.start()
 
-    img = qr.make_image(fill_color="black", back_color="white")
-    img.save(path)
-    return img 
+    def _run(self):
+        self.is_running = False
+        self.start()
+        self.function(*self.args, **self.kwargs)
 
-def build_image(identifier, path):
-    final_size = (306,991)
+    def start(self):
+        if not self.is_running:
+            self._timer = Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
 
-    im1 = Image.new('RGB', final_size, color = (255,255,255))
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
+        
+def check_values(df):
+    if df.empty:
+        return False
+    if len(df.columns)==0:
+        return False
+    if not 'AF7' in df.columns:
+        return False
+    if not 'AF8' in df.columns:
+        return False
+    if (df['AF7'].mean()==0.0 and df['AF8'].mean()==0.0):
+        return False
+    return True
 
-    im2 = Image.open(f'qrs/{identifier}.png') #330x330 
-    im2 = im2.resize((300,300))
+def transform_EEG(df, seconds, noise_shape, scale):
+  #to seconds
+  min_value = df['timestamp'].min()
+  df['timestamp'] = round(df['timestamp'] - min_value)
+  df = df.groupby(['wave_name','timestamp']).median().reset_index()
 
-    im3 = Image.open('logos/logoANT.png') #996x580
-    im3 = im3.resize((249, 146))
-    im3 = im3.rotate(90, expand=True)
+  #fill out 0 with random values
+  df['AF7'] = df['AF7'].replace(to_replace =0.0, value =  np.random.normal(0,1))
+  df['AF8'] = df['AF8'].replace(to_replace =0.0, value =  np.random.normal(0,1))
+  
+  #create columns for each tuple wave_name and sensor_name
+  waves_dict = df.groupby('wave_name').groups
+  dfs = []
+  for w in waves_dict:
+    df_aux=df[df['wave_name']==w][['AF7','AF8', 'timestamp']]
+    df_aux[f'AF7_{w}']=df_aux['AF7']
+    df_aux[f'AF8_{w}']=df_aux['AF8']
+    df_aux.drop(['AF7','AF8'], axis=1, inplace=True)
+    dfs.append(df_aux)
 
+  #merge created columns by timestamp value 
+  df = reduce(lambda x, y: pd.merge(x, y, on = 'timestamp'), dfs)
+  df.drop('timestamp', axis=1, inplace=True)
+  #keep only last values 
+  df = df.tail(seconds)
 
-    im4 = Image.open('logos/logoRS.png') #996x580
-    im4 = im4.resize((249, 146))
-    im4 = im4.rotate(90, expand=True)
+  #transform dataframe to numpy array
+  if (df.shape[0]<seconds):
+    return np.random.normal(0, 1, (1,100))
 
+  df = df.values
+  df = df.reshape(noise_shape)  
 
-    im5 = Image.open('logos/logoDaofy.png') #717x174
-    im5 = im5.resize((143, 35))
-    im5 = im5.rotate(90, expand=True)
-
-    im1.paste(im2, box=(3,2))
-    im1.paste(im3, box=(55,280))
-    im1.paste(im4, box=(58,552))
-    im1.paste(im5, box=(145,814))
-    im1.save(path)
-
-def print_image(path, backup_path):
-    subprocess.run(["brother_ql", "-b pyusb", "-p usb://0x04f9:0x209b", "-m QL-800", "print -l 29x90", path])
-    if (result.stdout contains 'successful'):
-        os.remove(path)
-    else:
-        shutil.move(path, backup_path)
+  #rescale
+  df = 2.*(df - np.min(df))/np.ptp(df)-scale
+  return df
 
     

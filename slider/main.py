@@ -92,11 +92,18 @@ def stop():
         if (len(images) >= rowsize*rowsize):
             logger.info('Generate mosaic')
             result = f'/home/pi/biofeedback-jam/result/{identifier}.png'
-            utils.save_mosaic(images, result, rowsize)
             qr_path = utils.generate_qr(identifier)
-            #TODO print qr
-            #os.remove(qr_path)
+            qr_path = utils.build_image(identifier, qr_path)
+            
+            logger.info(f'Printing image {identifier}')
+            ok = utils.print_image(qr_path, f'/home/pi/biofeedback-jam/backup_qrs/{identifier}.png')
+            if (ok):
+                os.remove(qr_path)
+            else:
+                shutil.move(path, backup_path)
+
             logger.info(f"Uploading file {result}")
+            utils.save_mosaic(images, result, rowsize)
             ok = s3_uploader.upload_to_s3(result, 
                 bucket, 
                 f'{identifier}.png', 
