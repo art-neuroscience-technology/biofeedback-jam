@@ -9,7 +9,6 @@ import utils
 import os
 import glob
 import random
-import s3_uploader
 import logging
 
 # create logger
@@ -23,7 +22,7 @@ logger.addHandler(ch)
 
 #OCS listener
 IP='0.0.0.0'
-PORT = 5000
+PORT = 5001
 
 #interval in seconds
 INTERVAL = 10
