@@ -61,7 +61,7 @@ def start():
     if request.method == 'GET':
         return redirect(url_for('show'))
    
-    #remove images in folder 
+    #remove images 
     images = get_images()
     for file_name in images:
         os.remove(file_name)
@@ -69,6 +69,11 @@ def start():
     images = glob.glob('/home/pi/biofeedback-jam/result/*.png')
     for file_name in images:
         os.remove(file_name)
+    
+    images = glob.glob('/home/pi/biofeedback-jam/qrs/*.png')
+    for file_name in images:
+        os.remove(file_name)
+    
 
     #generate new indetifier  
     identifier = uuid.uuid4()
@@ -94,8 +99,6 @@ def stop():
             result = f'/home/pi/biofeedback-jam/result/{identifier}.png'
             utils.save_mosaic(images, result, rowsize)
             qr_path = utils.generate_qr(identifier)
-            #TODO print qr
-            #os.remove(qr_path)
             logger.info(f"Uploading file {result}")
             ok = s3_uploader.upload_to_s3(result, 
                 bucket, 

@@ -6,40 +6,36 @@ from datetime import datetime
 from pythonosc import dispatcher
 from pythonosc import osc_server
 from pythonosc import udp_client
-import sys, getopt
 
 
 waves_names=['delta','theta','alpha','beta','gamma']
 
 
-listeners = [{ 'ip' : "192.168.0.175", 'port' : 5001 }, { 'ip' : "192.168.0.199", 'port' : 5000 }, { 'ip' : "192.168.0.199", 'port' : 5000 }] 
+#initialize clients
+listeners = [{ 'ip' : "192.168.1.181", 'port' : 5001 },
+             { 'ip' : "192.168.1.132", 'port' : 5001 },
+             { 'ip' : "192.168.1.132", 'port' : 5000 }] 
 
-
+for l in listeners:
+    l['client'] = udp_client.SimpleUDPClient(l['ip'], l['port'])
+    
 ip = "0.0.0.0"
 port = 5000
 
 def forward_message(address: str, *args):
+    global listeners
     for l in listeners:
         l['client'].send_message(address, args)
     
 
-def main(argv):
-   #initialize clients
-   for l in listeners:
-    l['client'] = udp_client.SimpleUDPClient(l['ip'], l['port'])
+dispatcher = dispatcher.Dispatcher()
+dispatcher.map("/muse/elements/delta_absolute", forward_message)
+dispatcher.map("/muse/elements/theta_absolute", forward_message)
+dispatcher.map("/muse/elements/alpha_absolute", forward_message)
+dispatcher.map("/muse/elements/beta_absolute", forward_message)
+dispatcher.map("/muse/elements/gamma_absolute", forward_message)
 
-   dispatcher = dispatcher.Dispatcher()
-   dispatcher.map("/muse/elements/delta_absolute", forward_message)
-   dispatcher.map("/muse/elements/theta_absolute", forward_message)
-   dispatcher.map("/muse/elements/alpha_absolute", forward_message)
-   dispatcher.map("/muse/elements/beta_absolute", forward_message)
-   dispatcher.map("/muse/elements/gamma_absolute", forward_message)
-
-   server = osc_server.ThreadingOSCUDPServer((ip, port), dispatcher)
-   print("Listening on port "+str(port))
-   server.serve_forever()
-
-if __name__ == "__main__":
-   main(sys.argv[1:])
-
+server = osc_server.ThreadingOSCUDPServer((ip, port), dispatcher)
+print("Listening on port "+str(port))
+server.serve_forever()
 

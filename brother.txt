@@ -1,0 +1,19 @@
+DEVICE ID 04f9:209e on Bus 001 Address 015 =================
+ bLength                :   0x12 (18 bytes)
+ bDescriptorType        :    0x1 Device
+ bcdUSB                 :  0x200 USB 2.0
+ bDeviceClass           :    0x0 Specified at interface
+ bDeviceSubClass        :    0x0
+ bDeviceProtocol        :    0x0
+ bMaxPacketSize0        :   0x40 (64 bytes)
+ idVendor               : 0x04f9
+ idProduct              : 0x209e
+ bcdDevice              :  0x100 Device 1.0
+ iManufacturer          :    0x1 Error Accessing String
+ iProduct               :    0x2 Error Accessing String
+ iSerialNumber          :    0x3 Error Accessing String
+ bNumConfigurations     :    0x1
+
+
+
+brother_ql -b pyusb -p usb://04f9:209e/000A2Z856912 -m QL-800 print -l 62 qr-ant.png 
