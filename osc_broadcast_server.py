@@ -24,6 +24,7 @@ port = 5000
 
 def forward_message(address: str, *args):
     global listeners
+    print(address, args)
     for l in listeners:
         l['client'].send_message(address, args)
     
