@@ -103,7 +103,7 @@ def stop():
             
             logger.info(f'Printing image {identifier}.png')
             ok = utils.print_image(qr_path, logger)
-            ok = False
+     
             if (ok):
                 os.remove(qr_path)
             else:
