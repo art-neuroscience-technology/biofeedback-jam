@@ -12,9 +12,9 @@ waves_names=['delta','theta','alpha','beta','gamma']
 
 
 #initialize clients
-listeners = [{ 'ip' : "192.168.1.181", 'port' : 5001 },
-             { 'ip' : "192.168.1.132", 'port' : 5001 },
-             { 'ip' : "192.168.1.132", 'port' : 5000 }] 
+listeners = [{ 'ip' : "192.168.0.175", 'port' : 5001 },
+             { 'ip' : "192.168.0.199", 'port' : 5001 },
+             { 'ip' : "192.168.0.199", 'port' : 5000 }] 
 
 for l in listeners:
     l['client'] = udp_client.SimpleUDPClient(l['ip'], l['port'])

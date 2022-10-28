@@ -58,7 +58,7 @@ def generate_qr(identifier, qr_path):
         box_size=10,
         border=4,
     )
-    qr.add_data(f'http://doafy.me/{identifier}')
+    qr.add_data(f'http://doafy.me/ant/{identifier}')
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
@@ -94,23 +94,23 @@ def build_image(identifier, base_path, path):
     im1.paste(im5, box=(145,814))
     im1.save(path)
 
-def print_image(path):
+def print_image(image_path, logger):
     
+    logger.info(f'Printing {image_path}')
     try:
-        result = subprocess.run(["brother_ql",
+        result = subprocess.run(["/home/pi/.local/bin/brother_ql",
                     "-b","pyusb",
                     "-p","usb://0x04f9:0x209b",
                     "-m","QL-800",
                     "print","-l","29x90",
-                    path])
-        if ('successful' in result.stdout):
+                    image_path])
+        if (result.returncode==0):
             return True
         else:
+            logger.error(f'Result = {result}')
             return False
 
     except Exception as ex:
-        print(f'Error:{ex}')
+        logger.error(f'Error:{ex}')
         return False
-    
-   
     

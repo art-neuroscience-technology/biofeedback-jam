@@ -73,6 +73,9 @@ def process_signal():
             if running_mode:
                 df = utils.transform_EEG(df, INTERVAL, noise_shape=(1,100), scale=2)
                 image_generator.predict(df, model_id, save_name)
+                model_id2 = (model_id+1) % max_model_id
+                image_generator.predict(df, model_id2, f'{save_name}-2')
+                logger.info(f'{model_id},{model_id2}')
 
     except Exception as ex:
         logger.error(f'Error:({save_name}) {ex}')

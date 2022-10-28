@@ -14,7 +14,7 @@ def upload_to_s3(local_file, bucket, s3_file, aws_access_key_id, aws_secret_acce
             )
 
         response = s3.upload_file(local_file, bucket, s3_file)
-        logger.info(response)
+        logger.info(f'response={response}')
 
         return True
         

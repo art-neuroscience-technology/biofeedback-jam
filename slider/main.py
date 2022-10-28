@@ -12,6 +12,7 @@ import s3_uploader
 import logging
 import utils
 import shutil
+import subprocess
 
 
 # create logger
@@ -28,7 +29,7 @@ aws_access_key_id, aws_secret_access_key = '', ''
 identifier = ''
 
 #mosaic values 
-rowsize = 4
+rowsize = 5
 
 app = Flask(__name__)
 
@@ -100,15 +101,17 @@ def stop():
             utils.generate_qr(identifier, qr_path)
             utils.build_image(identifier, '/home/pi/biofeedback-jam/', qr_path)
             
-            logger.info(f'Printing image {identifier}')
-            ok = utils.print_image(qr_path)
+            logger.info(f'Printing image {identifier}.png')
+            ok = utils.print_image(qr_path, logger)
+            ok = False
             if (ok):
                 os.remove(qr_path)
             else:
-                shutil.move(path, f'/home/pi/biofeedback-jam/backup_qrs/{identifier}.png')
+                shutil.move(qr_path, f'/home/pi/biofeedback-jam/backup_qrs/{identifier}.png')
 
-            logger.info(f"Uploading file {result}")
             result = f'/home/pi/biofeedback-jam/result/{identifier}.png'
+            logger.info(f"Uploading file {result}")
+
             utils.save_mosaic(images, result, rowsize)
             ok = s3_uploader.upload_to_s3(result, 
                 bucket, 
