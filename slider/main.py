@@ -84,7 +84,7 @@ def start():
     identifier = id_aux
     logger.info(f'Created identifier {identifier}') 
    
-    time.sleep(5)
+    time.sleep(2)
     return render_template('index.html', identifier=identifier, visibility="hidden")
 
 
@@ -104,10 +104,10 @@ def stop():
             
             qr_path = f"/home/pi/biofeedback-jam/qrs/{identifier}.png"
             utils.generate_qr(identifier, qr_path)
-            utils.build_image(identifier, '/home/pi/biofeedback-jam/', qr_path)
+            utils.build_image_62mm(identifier, qr_path)
             
             logger.info(f'Printing image {identifier}.png')
-            ok = utils.print_image(qr_path, logger)
+            ok = utils.print_image(qr_path,'62',logger)
      
             if (ok):
                 os.remove(qr_path)
@@ -116,7 +116,6 @@ def stop():
 
             result = f'/home/pi/biofeedback-jam/result/{identifier}.png'
             logger.info(f"Uploading file {result}")
-
             utils.save_mosaic(images, result, rowsize)
             ok = s3_uploader.upload_to_s3(result, 
                 bucket, 
@@ -135,7 +134,7 @@ def stop():
         logger.error(f'Error:{ex}')
 
     identifier = ''
-    time.sleep(5)
+    time.sleep(2)
     return render_template('index.html', identifier='', visibility="visible")
 
     

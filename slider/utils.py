@@ -66,7 +66,7 @@ def generate_qr(identifier, qr_path):
 
     
 
-def build_image(identifier, base_path, path):
+def build_image_29mm(identifier, path):
     final_size = (306,991)
 
     im1 = Image.new('RGB', final_size, color = (255,255,255))
@@ -74,17 +74,17 @@ def build_image(identifier, base_path, path):
     im2 = Image.open(f'{base_path}/qrs/{identifier}.png') #330x330 
     im2 = im2.resize((300,300))
 
-    im3 = Image.open(f'{base_path}/logos/logoANT.png') #996x580
+    im3 = Image.open('/home/pi/biofeedback-jam/logos/logoANT.png') #996x580
     im3 = im3.resize((249, 146))
     im3 = im3.rotate(90, expand=True)
 
 
-    im4 = Image.open(f'{base_path}/logos/logoRS.png') #996x580
+    im4 = Image.open('/home/pi/biofeedback-jam/logos/logoRS.png') #996x580
     im4 = im4.resize((249, 146))
     im4 = im4.rotate(90, expand=True)
 
 
-    im5 = Image.open(f'{base_path}/logos/logoDaofy.png') #717x174
+    im5 = Image.open('/home/pi/biofeedback-jam/logos/logoDaofy.png') #717x174
     im5 = im5.resize((143, 35))
     im5 = im5.rotate(90, expand=True)
 
@@ -93,8 +93,31 @@ def build_image(identifier, base_path, path):
     im1.paste(im4, box=(58,552))
     im1.paste(im5, box=(145,814))
     im1.save(path)
+    
+def build_image_62mm(identifier, path):        
+    final_size = (696,1109)
 
-def print_image(image_path, logger):
+    im1 = Image.new('RGB', final_size, color = (255,255,255))
+
+    im2 = Image.open('/home/pi/biofeedback-jam/logos/logoANT.png') #1444x652
+    im2 = im2.resize((577, 260))
+
+    im3 = Image.open(f'/home/pi/biofeedback-jam/qrs/{identifier}.png') #330x330 
+
+    im4 = Image.open(f'/home/pi/biofeedback-jam/logos/logoRS.png') #996x580
+    im4 = im4.resize((498, 290))
+
+    im5 = Image.open(f'/home/pi/biofeedback-jam/logos/logoDaofy.png') #717x174
+    im5 = im5.resize((478, 116))
+
+    im1.paste(im2, box=(62,4))
+    im1.paste(im3, box=(185,266))
+    im1.paste(im4, box=(98,598))
+    im1.paste(im5, box=(108,894))
+    im1.save(path)
+
+
+def print_image(image_path, size, logger):
     
     logger.info(f'Printing {image_path}')
     try:
@@ -102,9 +125,13 @@ def print_image(image_path, logger):
                     "-b","pyusb",
                     "-p","usb://0x04f9:0x209b",
                     "-m","QL-800",
-                    "print","-l","29x90",
-                    image_path])
-        if (result.returncode==0):
+                    "print","-l",size,
+                    image_path],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True)
+        
+        if('Error' not in result.stderr):
             return True
         else:
             logger.error(f'Result = {result}')
