@@ -76,7 +76,12 @@ def start():
     
 
     #generate new indetifier  
-    identifier = uuid.uuid4()
+    id = str(uuid.uuid4())
+    id_aux = ''
+    for c in id:
+        if(c.isnumeric()):
+            id_aux = id_aux + c
+    identifier = id_aux
     logger.info(f'Created identifier {identifier}') 
    
     time.sleep(5)
