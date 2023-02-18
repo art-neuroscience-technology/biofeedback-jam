@@ -31,7 +31,7 @@ def upload_files(files_dir, bucket, aws_access_key_id, aws_secret_access_key):
             aws_secret_access_key
          )
         if (ok):
-         os.remove(f'{files_dir}/{file_name}')
+            os.remove(f'{files_dir}/{file_name}')
 
 
 def main(argv):

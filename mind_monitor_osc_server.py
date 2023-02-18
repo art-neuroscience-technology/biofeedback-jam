@@ -24,6 +24,7 @@ logger.addHandler(ch)
 IP='0.0.0.0'
 PORT = 5001
 
+
 #interval in seconds
 INTERVAL = 10
 
@@ -87,7 +88,7 @@ def wave_handler(address, *args):
     global start_timestamp
     try:
         if start_timestamp==-1:
-            start_timestamp = time.time() 
+            start_timestamp = time.time()
 
         wave_name = address.split('/muse/elements/')[1].split('_')[0]
         #keep ['AF7','AF8']

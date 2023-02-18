@@ -8,13 +8,13 @@ from pythonosc import osc_server
 from pythonosc import udp_client
 
 
-waves_names=['delta','theta','alpha','beta','gamma']
-
 
 #initialize clients
-listeners = [{ 'ip' : "192.168.0.175", 'port' : 5001 },
-             { 'ip' : "192.168.0.199", 'port' : 5001 },
-             { 'ip' : "192.168.0.199", 'port' : 5000 }] 
+listeners = [{ 'ip' : "172.22.130.228", 'port' : 5001 },
+             { 'ip' : "54.167.162.144", 'port' : 5001 }] 
+
+
+
 
 for l in listeners:
     l['client'] = udp_client.SimpleUDPClient(l['ip'], l['port'])
@@ -24,11 +24,14 @@ port = 5000
 
 def forward_message(address: str, *args):
     global listeners
-    print(address, args)
-    for l in listeners:
-        l['client'].send_message(address, args)
     
-
+    try:
+        print(address, args)
+        for l in listeners:
+            l['client'].send_message(address, args)
+    except:
+        pass
+    
 dispatcher = dispatcher.Dispatcher()
 dispatcher.map("/muse/elements/delta_absolute", forward_message)
 dispatcher.map("/muse/elements/theta_absolute", forward_message)

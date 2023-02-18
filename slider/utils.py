@@ -58,7 +58,7 @@ def generate_qr(identifier, qr_path):
         box_size=10,
         border=4,
     )
-    qr.add_data(f'http://doafy.me/claim/{identifier}')
+    qr.add_data(f'http://daofy.me/claim/{identifier}')
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")

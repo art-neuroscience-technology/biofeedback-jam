@@ -25,7 +25,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 bucket = 'biofeedback'
-aws_access_key_id, aws_secret_access_key = '', ''
+aws_access_key_id, aws_secret_access_key = 'AKIASPKYDZ4OK4BZKKEI', 'dP36wlzJKWh3KXjB9qv/ydSLudQoDT/a3LNjCVzQ'
 identifier = ''
 
 #mosaic values 
@@ -76,7 +76,7 @@ def start():
     
 
     #generate new indetifier  
-    id = str(uuid.uuid4())
+    id = ̈́f'{str(1)}{str(uuid.uuid4())}'
     id_aux = ''
     for c in id:
         if(c.isnumeric()):

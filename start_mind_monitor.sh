@@ -12,5 +12,5 @@ rm -f /tmp/mind_monitor.log
 
 echo "starting mind monitor"
 export  PYTHONUNBUFFERED=x
-cd /home/pi/biofeedback-jam/; /usr/bin/python3 mind_monitor_osc_server.py >> /tmp/mind_monitor.log 2>&1 &
+cd /home/pi/biofeedback-jam/; /usr/bin/python3 mind_monitor_osc_server.py
 
