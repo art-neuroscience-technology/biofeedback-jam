@@ -25,11 +25,13 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 bucket = 'biofeedback'
-aws_access_key_id, aws_secret_access_key = 'AKIASPKYDZ4OK4BZKKEI', 'dP36wlzJKWh3KXjB9qv/ydSLudQoDT/a3LNjCVzQ'
+aws_access_key_id, aws_secret_access_key = '', ''
 identifier = ''
 
-#mosaic values 
-rowsize = 5
+#grid values 
+rowsize=6
+colsize=3
+result_size=()
 
 app = Flask(__name__)
 
@@ -98,9 +100,9 @@ def stop():
         if len(images)>0:
             logger.info(f'Recieve END sing from identifier {identifier}')
 
-        #generate mosaic
-        if (len(images) >= rowsize*rowsize):
-            logger.info('Generate mosaic')
+        #generate grid
+        if (len(images) >= rowsize*colsize):
+            logger.info('Generate grid')
             
             qr_path = f"/home/pi/biofeedback-jam/qrs/{identifier}.png"
             utils.generate_qr(identifier, qr_path)
@@ -116,7 +118,7 @@ def stop():
 
             result = f'/home/pi/biofeedback-jam/result/{identifier}.png'
             logger.info(f"Uploading file {result}")
-            utils.save_mosaic(images, result, rowsize)
+            utils.save_grid(images, result, rowsize, colsize, result_size)
             ok = s3_uploader.upload_to_s3(result, 
                 bucket, 
                 f'{identifier}.png', 

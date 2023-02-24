@@ -5,52 +5,25 @@ import qrcode
 import numpy as np
 from threading import Timer
 from functools import reduce
-import pandas as pd
 import random
 import qrcode
 from PIL import Image
 import subprocess
-import shutil
-
-def get_concat_h_multi_resize(im_list, resample=Image.BICUBIC):
-    min_height = min(im.height for im in im_list)
-    im_list_resize = [im.resize((int(im.width * min_height / im.height), min_height),resample=resample)
-                      for im in im_list]
-    total_width = sum(im.width for im in im_list_resize)
-    dst = Image.new('RGB', (total_width, min_height))
-    pos_x = 0
-    for im in im_list_resize:
-        dst.paste(im, (pos_x, 0))
-        pos_x += im.width
-    return dst
-
-def get_concat_v_multi_resize(im_list, resample=Image.BICUBIC):
-    min_width = min(im.width for im in im_list)
-    im_list_resize = [im.resize((min_width, int(im.height * min_width / im.width)),resample=resample)
-                      for im in im_list]
-    total_height = sum(im.height for im in im_list_resize)
-    dst = Image.new('RGB', (min_width, total_height))
-    pos_y = 0
-    for im in im_list_resize:
-        dst.paste(im, (0, pos_y))
-        pos_y += im.height
-    return dst
 
 
-def get_concat_tile_resize(im_list_2d, resample=Image.BICUBIC):
-    im_list_v = [get_concat_h_multi_resize(im_list_h, resample=resample) for im_list_h in im_list_2d]
-    return get_concat_v_multi_resize(im_list_v, resample=resample)
-
-
-def save_mosaic(images, result_path, rowsize):
-        images = np.random.choice(images,rowsize*rowsize)
+def save_grid(images, result_path, rowsize=6, colsize=3, result_size=(360, 640)):
+        images = random.sample(images, rowsize*colsize)
         images = [Image.open(item) for item in images]
-        image_list = []
-        for i in range(1,rowsize+1):
-            image_list.append(images[rowsize*(i-1):rowsize*i])
-            
-        get_concat_tile_resize(image_list).save(result_path)
+        w, h = images[0].size
+        grid = Image.new('RGB', size=(colsize*w, rowsize*h))
+        for i, img in enumerate(images):
+            grid.paste(img, box=(i%colsize*w, i//colsize*h))
+    
+        grid = grid.resize(result_size)
+        grid.save(result_path,"png")
+        grid.show()
 
+        
 def generate_qr(identifier, qr_path):
     qr = qrcode.QRCode(
         version=1,
@@ -71,7 +44,7 @@ def build_image_29mm(identifier, path):
 
     im1 = Image.new('RGB', final_size, color = (255,255,255))
 
-    im2 = Image.open(f'{base_path}/qrs/{identifier}.png') #330x330 
+    im2 = Image.open(f'/home/pi/biofeedback-jam/qrs/{identifier}.png') #330x330 
     im2 = im2.resize((300,300))
 
     im3 = Image.open('/home/pi/biofeedback-jam/logos/logoANT.png') #996x580
