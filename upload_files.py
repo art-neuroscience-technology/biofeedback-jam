@@ -9,7 +9,6 @@ from botocore.exceptions import NoCredentialsError
 def upload_to_s3(local_file, bucket, s3_file, aws_access_key_id, aws_secret_access_key):
     try:
         s3 = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
-        print(f"Uploading file {local_file}")
         s3.upload_file(local_file, bucket, s3_file)
         return True
     except FileNotFoundError:
@@ -21,12 +20,16 @@ def upload_to_s3(local_file, bucket, s3_file, aws_access_key_id, aws_secret_acce
 
 
 #Save files at the S3 bucket, creating a folder per identifier  
-def upload_files(files_dir, bucket, aws_access_key_id, aws_secret_access_key):  
+def upload_files(files_dir, bucket, aws_access_key_id, aws_secret_access_key, s3_folder=''):  
+    dest_path = ''
+    if (s3_folder!=''):
+        dest_path = f'{s3_folder}/'
+    
     for file_name in os.listdir(files_dir):
         identifier = file_name.split('_')[0]
         ok = upload_to_s3(f'/{files_dir}/{file_name}',
             bucket, 
-            f'{file_name}', 
+            f'{dest_path}{file_name}', 
             aws_access_key_id, 
             aws_secret_access_key
          )
@@ -39,14 +42,15 @@ def main(argv):
    bucket = ''
    access_key = ''
    secret_key = ''
+   s3_folder = ''
    try:
-      opts, args = getopt.getopt(argv,"hd:b:a:s:",["dir=","bucket=","folder=", "access_key=","secret_key="])
+      opts, args = getopt.getopt(argv,"hd:b:a:s:f:",["dir=","bucket=", "access_key=","secret_key=", "s3_folder="])
    except getopt.GetoptError:
-      print ('python3 upload_file.py -d <dir> -b <bucket> -a <access_key> -s <secret_key>')
+      print ('python3 upload_file.py -d <dir> -b <bucket> -a <access_key> -s <secret_key> -f <s3_folder>')
       sys.exit(2)
    for opt, arg in opts:
       if opt == '-h':
-         print ('python3 upload_file.py -d <dir> -o <bucket> -a <access_key> -s <secret_key>')
+         print ('python3 upload_file.py -d <dir> -o <bucket> -a <access_key> -s <secret_key> -f <s3_folder>')
          sys.exit()
       elif opt in ("-d", "--dir"):
          files_dir = arg
@@ -56,8 +60,10 @@ def main(argv):
          access_key = arg
       elif opt in ("-s", "--secret_key"):
          secret_key = arg
+      elif opt in ("-f", "--s3_folder"):
+          s3_folder = arg
    try:
-      upload_files(files_dir, bucket, access_key, secret_key)
+      upload_files(files_dir, bucket, access_key, secret_key, s3_folder)
    except Exception as ex:
       print(ex)
    

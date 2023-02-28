@@ -13,6 +13,7 @@ import logging
 import utils
 import shutil
 import subprocess
+import time 
 
 
 # create logger
@@ -27,11 +28,9 @@ logger.addHandler(ch)
 bucket = 'biofeedback'
 aws_access_key_id, aws_secret_access_key = '', ''
 identifier = ''
-
-#grid values 
-rowsize=6
-colsize=3
-result_size=()
+start_timestamp = -1
+rowsize = 6
+colsize = 3
 
 app = Flask(__name__)
 
@@ -49,7 +48,6 @@ def get_images():
 @app.route('/show', methods = ['GET', 'POST'])
 def show():
    global identifier
-   filename = ''
    images = get_images()
    if len(images)>0:
        response = render_template('index.html', files=images, identifier=identifier)
@@ -60,9 +58,12 @@ def show():
 @app.route('/start', methods=['GET', 'POST'])  
 def start():
     global identifier
+    global start_timestamp
     if request.method == 'GET':
         return redirect(url_for('show'))
-   
+    
+    start_timestamp = time.time()
+    
     #remove images 
     images = get_images()
     for file_name in images:
@@ -78,7 +79,7 @@ def start():
     
 
     #generate new indetifier  
-    id = ̈́f'{str(1)}{str(uuid.uuid4())}'
+    id = f'{str(1)}{str(uuid.uuid4())}'
     id_aux = ''
     for c in id:
         if(c.isnumeric()):
@@ -93,13 +94,22 @@ def start():
 @app.route('/stop', methods=['GET', 'POST'])  
 def stop():
     global identifier
+    global start_timestamp
+    global aws_access_key_id
+    global aws_secret_access_key
+    
     if request.method == 'GET':
         return redirect(url_for('show'))
     try:
         images = get_images()
         if len(images)>0:
             logger.info(f'Recieve END sing from identifier {identifier}')
-
+        
+        end_timestamp = time.time()
+        with open('/home/pi/biofeedback-jam/slider/timestamp_users.csv', 'a') as file:
+            file.write(f'{start_timestamp};{end_timestamp};{identifier}\n')
+        
+        start_timestamp = -1    
         #generate grid
         if (len(images) >= rowsize*colsize):
             logger.info('Generate grid')
@@ -118,16 +128,19 @@ def stop():
 
             result = f'/home/pi/biofeedback-jam/result/{identifier}.png'
             logger.info(f"Uploading file {result}")
-            utils.save_grid(images, result, rowsize, colsize, result_size)
+            utils.save_grid(images, result, rowsize, colsize)
+            
             ok = s3_uploader.upload_to_s3(result, 
                 bucket, 
                 f'{identifier}.png', 
                 aws_access_key_id, 
-                aws_secret_access_key, logger)
+                aws_secret_access_key,
+                logger)
             if ok:
                 os.remove(result)
             else:
                 shutil.move(result, f'/home/pi/biofeedback-jam/to_upload/')
+            
 
         for file_name in images:
             os.remove(file_name)
@@ -139,8 +152,22 @@ def stop():
     time.sleep(2)
     return render_template('index.html', identifier='', visibility="visible")
 
+def main(argv):    
+    global aws_access_key_id
+    global aws_secret_access_key
+    global bucket
     
+    opts, args = getopt.getopt(argv,"hb:a:s:",["access_key=","secret_key="])
+    for opt, arg in opts:
+       if opt == '-h':
+          print ('mind_monitor_osc_server.py -a <access_key> -s <secret_key>')
+          sys.exit()
+       elif opt in ("-a", "--access_key"):
+          aws_access_key_id = arg
+       elif opt in ("-s", "--secret_key"):
+          aws_secret_access_key = arg
+    app.run(debug=True, port=7000)
     
 
-if __name__ == '__main__':
-    app.run(debug=True, port=7000)
+if __name__ == "__main__":
+   main(sys.argv[1:])

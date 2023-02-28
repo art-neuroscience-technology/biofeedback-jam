@@ -21,7 +21,6 @@ def save_grid(images, result_path, rowsize=6, colsize=3, result_size=(360, 640))
     
         grid = grid.resize(result_size)
         grid.save(result_path,"png")
-        grid.show()
 
         
 def generate_qr(identifier, qr_path):

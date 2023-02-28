@@ -10,6 +10,10 @@ import os
 import glob
 import random
 import logging
+import sys, getopt
+from slider import s3_uploader
+import shutil
+
 
 # create logger
 logger = logging.getLogger('biofeedback')
@@ -20,9 +24,13 @@ formatter = logging.Formatter('%(lineno)d - %(asctime)s - %(name)s - %(levelname
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
+aws_access_key_id = ''
+aws_secret_access_key = ''
+bucket = 'biofeedback'
+
 #OCS listener
 IP='0.0.0.0'
-PORT = 5001
+PORT = 5000
 
 
 #interval in seconds
@@ -32,6 +40,8 @@ INTERVAL = 10
 SENSORS=['AF7','AF8']
 
 WAVES = [] 
+
+RESULT_PATH = '/home/pi/biofeedback-jam/eeg-files'
 
 start_timestamp = -1
 image_generator = None
@@ -54,6 +64,8 @@ def process_waves():
 def process_signal():
     global start_timestamp
     global running_mode
+    global aws_access_key_id
+    global aws_secret_access_key
     
     if start_timestamp==-1:
         return
@@ -67,9 +79,22 @@ def process_signal():
                 
             logger.info(f'Processing waves for {start_timestamp}')
             model_id = random.randint(0, max_model_id)
-            save_name = f'{start_timestamp}'
+            
             #save eeg result
-            #df.to_csv(f'{RESULT_PATH}/{save_name}.csv') 
+            save_name = f'{start_timestamp}'
+            result = f'{RESULT_PATH}/{save_name}.csv'
+            df.to_csv(result)
+            ok = s3_uploader.upload_to_s3(result, 
+                bucket, 
+                f'eeg/{save_name}.csv', 
+                aws_access_key_id, 
+                aws_secret_access_key,
+                logger)
+            if ok:
+                os.remove(result)
+            else:
+                shutil.move(result, f'/home/pi/biofeedback-jam/eeg/')
+            
             
             if running_mode:
                 df = utils.transform_EEG(df, INTERVAL, noise_shape=(1,100), scale=2)
@@ -111,7 +136,7 @@ def get_dispatcher():
     return dispatcher
 
 """Starts the server"""  
-def start_blocking_server(ip, port):
+def start_blocking_server(ip, port, dispatcher):
     server = ThreadingOSCUDPServer(
       (ip, port), dispatcher)
     logger.info("Serving on {}".format(server.server_address))
@@ -128,11 +153,29 @@ def initialize():
     start_timestamp = -1
     logger.info('Initialization completed')
 
-if __name__ == '__main__':
+def main(argv):
     global processing_thread
+    global aws_access_key_id
+    global aws_secret_access_key
+    global bucket
+    
+    opts, args = getopt.getopt(argv,"hb:a:s:",["access_key=","secret_key="])
+    for opt, arg in opts:
+       if opt == '-h':
+          print ('mind_monitor_osc_server.py -a <access_key> -s <secret_key>')
+          sys.exit()
+       elif opt in ("-a", "--access_key"):
+          aws_access_key_id = arg
+       elif opt in ("-s", "--secret_key"):
+          aws_secret_access_key = arg
+          
     initialize()
     processing_thread = utils.RepeatedTimer(INTERVAL + 1, process_signal)
     dispatcher = get_dispatcher()
-    start_blocking_server(IP, PORT)
+    start_blocking_server(IP, PORT, dispatcher)
+
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
 
 
