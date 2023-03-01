@@ -6,5 +6,5 @@ pandas
 boto3
 flask
 glob
-
+brother-ql
 

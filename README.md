@@ -40,20 +40,34 @@ https://smarthomepursuits.com/open-website-on-startup-with-raspberry-pi-os/)
 
 - Configure MindMonitor to stream data 
 
+- Brother QL configuration
+Add the following line at the file  /etc/udev/rules.d/99-com.rules
+SUBSYSTEM=="usb", ATTR{idVendor}=="04f9", ATTR{idProduct}=="029b", MODE="0666"
+ 
+Check brother-ql is working:
+1. Discover usb 
+```bash 
+	brother_ql --backend pyusb discover 
+```
+2. Print test image 
+brother_ql -b pyusb -p usb://<id> -m QL-800 print -l 62 test.png 
+
 ## Start the system 
 
 [mind_monitor_ocs_server.py](mind_monitor_ocs_server.py): OCS server that listens incoming data from Muse Headband, captures the data and saves the EEG files. 
 
 ```bash
-	python mind_monitor_osc_server.py --access_key <access_key> --secret_key <secret_key> --mmode <mode> --ip 0.0.0.0 --port 5000
+	python mind_monitor_osc_server.py --access_key <access_key> --secret_key <secret_key> --mode <mode> --ip 0.0.0.0 --port 5000
 ```
-[slider/main.py]
+[slider/main.py](slider/main.py)
 ```bash
     cd slider/
-	python main.py --access_key <access_key> --secret_key <secret_key> --mmode <mode> 
+	python main.py --access_key <access_key> --secret_key <secret_key> --mode <mode> 
 ```
 
 access_key and secret_key parameters are the keys to access S3 bucket and mode takes the value True or False, either if you want to save the information in S3 or not. 
+
+Open the web at [http://localhost:7000/show](http://localhost:7000/show)
 
 # Auxiliar scripts 
 
