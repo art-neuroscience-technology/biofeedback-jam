@@ -73,8 +73,8 @@ def process_signal():
             logger.info(f'Processing waves for {start_timestamp}')
             model_id = random.randint(0, max_model_id)
             
+            save_name = f'{start_timestamp}'
             if (save_mode): #save eeg result
-                save_name = f'{start_timestamp}'
                 result = f'{RESULT_PATH}/{save_name}.csv'
                 df.to_csv(result)
                 ok = s3_uploader.upload_to_s3(result, 
@@ -150,11 +150,12 @@ def main(argv):
     global aws_secret_access_key
     global bucket
     global save_mode
+    
     #OCS listener
     IP='0.0.0.0'
     PORT = 5000
     
-    opts, args = getopt.getopt(argv,"hb:a:s:m:i:p",["access_key=","secret_key=", "mode", "ip", "port"])
+    opts, args = getopt.getopt(argv,"ha:s:m:i:p:",["access_key=","secret_key=", "mode=", "ip=", "port="])
     for opt, arg in opts:
        if opt == '-h':
           print ('mind_monitor_osc_server.py -a <access_key> -s <secret_key> -m <mode> -i <ip> - p <port>')
@@ -164,11 +165,11 @@ def main(argv):
        elif opt in ("-s", "--secret_key"):
           aws_secret_access_key = arg
        elif opt in ("-m", "--mode"):
-           save_mode = eval(opt)
+           save_mode = eval(arg)
        elif opt in ("-i", "--ip"):
-           IP = opt
+           IP = arg
        elif opt in ("-p", "--port"):
-           PORT = opt
+           PORT = int(arg)
           
     initialize()
     processing_thread = utils.RepeatedTimer(INTERVAL + 1, process_signal)

@@ -169,7 +169,7 @@ def main(argv):
        elif opt in ("-s", "--secret_key"):
           aws_secret_access_key = arg
        elif opt in ("-m", "--mode"):
-           save_mode = eval(opt)
+           save_mode = eval(arg)
        
 
     app.run(debug=True, port=7000)
