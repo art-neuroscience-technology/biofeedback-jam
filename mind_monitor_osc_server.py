@@ -28,11 +28,6 @@ aws_access_key_id = ''
 aws_secret_access_key = ''
 bucket = 'biofeedback'
 
-#OCS listener
-IP='0.0.0.0'
-PORT = 5000
-
-
 #interval in seconds
 INTERVAL = 10
 
@@ -47,8 +42,7 @@ start_timestamp = -1
 image_generator = None
 max_model_id = 0
 
-running_mode=True
-
+save_mode = True
     
 def process_waves():
   global WAVES
@@ -63,7 +57,6 @@ def process_waves():
 
 def process_signal():
     global start_timestamp
-    global running_mode
     global aws_access_key_id
     global aws_secret_access_key
     
@@ -80,28 +73,26 @@ def process_signal():
             logger.info(f'Processing waves for {start_timestamp}')
             model_id = random.randint(0, max_model_id)
             
-            #save eeg result
-            save_name = f'{start_timestamp}'
-            result = f'{RESULT_PATH}/{save_name}.csv'
-            df.to_csv(result)
-            ok = s3_uploader.upload_to_s3(result, 
-                bucket, 
-                f'eeg/{save_name}.csv', 
-                aws_access_key_id, 
-                aws_secret_access_key,
-                logger)
-            if ok:
-                os.remove(result)
-            else:
-                shutil.move(result, f'/home/pi/biofeedback-jam/eeg/')
+            if (save_mode): #save eeg result
+                save_name = f'{start_timestamp}'
+                result = f'{RESULT_PATH}/{save_name}.csv'
+                df.to_csv(result)
+                ok = s3_uploader.upload_to_s3(result, 
+                    bucket, 
+                    f'eeg/{save_name}.csv', 
+                    aws_access_key_id, 
+                    aws_secret_access_key,
+                    logger)
+                if ok:
+                    os.remove(result)
+                else:
+                    shutil.move(result, f'/home/pi/biofeedback-jam/eeg/')
             
-            
-            if running_mode:
-                df = utils.transform_EEG(df, INTERVAL, noise_shape=(1,100), scale=2)
-                image_generator.predict(df, model_id, save_name)
-                model_id2 = (model_id+1) % max_model_id
-                image_generator.predict(df, model_id2, f'{save_name}-2')
-                logger.info(f'{model_id},{model_id2}')
+            df = utils.transform_EEG(df, INTERVAL, noise_shape=(1,100), scale=2)
+            image_generator.predict(df, model_id, save_name)
+            model_id2 = (model_id+1) % max_model_id
+            image_generator.predict(df, model_id2, f'{save_name}-2')
+            logger.info(f'{model_id},{model_id2}')
 
     except Exception as ex:
         logger.error(f'Error:({save_name}) {ex}')
@@ -158,16 +149,26 @@ def main(argv):
     global aws_access_key_id
     global aws_secret_access_key
     global bucket
+    global save_mode
+    #OCS listener
+    IP='0.0.0.0'
+    PORT = 5000
     
-    opts, args = getopt.getopt(argv,"hb:a:s:",["access_key=","secret_key="])
+    opts, args = getopt.getopt(argv,"hb:a:s:m:i:p",["access_key=","secret_key=", "mode", "ip", "port"])
     for opt, arg in opts:
        if opt == '-h':
-          print ('mind_monitor_osc_server.py -a <access_key> -s <secret_key>')
+          print ('mind_monitor_osc_server.py -a <access_key> -s <secret_key> -m <mode> -i <ip> - p <port>')
           sys.exit()
        elif opt in ("-a", "--access_key"):
           aws_access_key_id = arg
        elif opt in ("-s", "--secret_key"):
           aws_secret_access_key = arg
+       elif opt in ("-m", "--mode"):
+           save_mode = eval(opt)
+       elif opt in ("-i", "--ip"):
+           IP = opt
+       elif opt in ("-p", "--port"):
+           PORT = opt
           
     initialize()
     processing_thread = utils.RepeatedTimer(INTERVAL + 1, process_signal)

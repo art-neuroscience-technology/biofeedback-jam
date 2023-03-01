@@ -16,4 +16,4 @@ DEVICE ID 04f9:209e on Bus 001 Address 015 =================
 
 
 
-brother_ql -b pyusb -p usb://04f9:209e/000A2Z856912 -m QL-800 print -l 62 qr-ant.png 
+brother_ql -b pyusb -p usb://04f9:209e/000A2Z856912 -m QL-800 print -l 62 test.png 

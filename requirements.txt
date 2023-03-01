@@ -4,7 +4,7 @@ python-osc
 numpy
 pandas
 boto3
-
-
+flask
+glob
 
 

@@ -2,7 +2,6 @@
 This projects uses a pre-trained GAN in order to generate images from EEG signals.       
 Capture EEG activity with Muse Headband and process it, transforming it to a vector, which is input for the GAN. 
 
-
 ## GAN
 You can find the code for training the GAN at [neuro-GAN](https://github.com/art-neuroscience-technology/neuro-GAN) 
 
@@ -12,9 +11,16 @@ At [results-images](slides/results-images) you can find a mosaic for generated i
 ## Min Monitor
 [Mind Monitor](https://mind-monitor.com/) is an app for Muse Headband 
 
-
 ## Install
-TODO
+Follow these instructions:
+- Install  numpy and matplotlib https://www.jarutex.com/index.php/2021/08/25/5448/ 
+- Install tensorflow lite https://pimylifeup.com/raspberry-pi-tensorflow-lite/
+- Install dependecies:
+
+```bash 
+	pip3 install -r requirements.txt
+	export PATH=$HOME/.local/bin:$PATH
+```
 
 ## Process
 
@@ -25,9 +31,22 @@ AF7_delta,AF7_theta,AF7_alpha,AF7_beta,AF7_gamma,AF8_delta,AF8_theta,AF8_alpha,A
 
 So, the noise vector is created from this 10x10 matrix, transforming it to a vector. Thus, that is the input for the GAN.  
 
-## Scripts
+## Start the system 
 
 [mind_monitor_ocs_server.py](mind_monitor_ocs_server.py): OCS server that listens incoming data from Muse Headband, captures the data and saves the EEG files. 
+
+```bash
+	python mind_monitor_osc_server.py --access_key <access_key> --secret_key <secret_key> --mmode <mode> --ip 0.0.0.0 --port 5000
+```
+[slider/main.py]
+```bash
+    cd slider/
+	python main.py --access_key <access_key> --secret_key <secret_key> --mmode <mode> 
+```
+
+access_key and secret_key parameters are the keys to access S3 bucket and mode takes the value True or False, either if you want to save the information in S3 or not. 
+
+# Auxiliar scripts 
 
 [generate_images.py](generate_images.py): generate images with the GAN from saved EEG files 
 
@@ -35,19 +54,16 @@ So, the noise vector is created from this 10x10 matrix, transforming it to a vec
 
 [ocs_emulator.py](ocs_emulator.py): emulates OCS Sender in order to simulate the traffic from the headband 
 
-[resize_images.py](resize_images.py): uses ESRGAN pre-trained model for resizing the images keeping the resolution 
-
 [upload_files.py](upload_files.py): to upload files to s3 
 
-Execute the following to upload files at eeg directory to s3
+Execute the following to upload local files at eeg directory to s3 
 
 ```bash
-	python3 upload_files.py -d eeg -b biofeedback -f eeg -a {ACCESS_KEY} -s {SECRET_KEY}
+	python upload_file.py -d eeg -o biofeedback -a <access_key> -s <secret_key> -f eeg 
 ```
 
-
-Execute the following to upload files at images directory to s3
+Execute the following to upload files at to_upload directory to s3 bucket 'biofeedback'
 
 ```bash
-	python3 upload_files.py -d to_upload -b biofeedback -f images -a {ACCESS_KEY} -s {SECRET_KEY}
+	python upload_file.py -d to_upload -o biofeedback -a <access_key> -s <secret_key> 
 ```

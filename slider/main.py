@@ -5,14 +5,12 @@ from werkzeug.datastructures import  FileStorage
 import os
 import glob
 import sys, getopt
-from pythonosc import udp_client
 import uuid
 import time
 import s3_uploader
 import logging
 import utils
 import shutil
-import subprocess
 import time 
 
 
@@ -34,6 +32,7 @@ colsize = 3
 
 app = Flask(__name__)
 
+save_mode = True
 
 def get_images():
     global identifier
@@ -130,17 +129,19 @@ def stop():
             logger.info(f"Uploading file {result}")
             utils.save_grid(images, result, rowsize, colsize)
             
-            ok = s3_uploader.upload_to_s3(result, 
-                bucket, 
-                f'{identifier}.png', 
-                aws_access_key_id, 
-                aws_secret_access_key,
-                logger)
-            if ok:
-                os.remove(result)
+            if (save_mode):
+                ok = s3_uploader.upload_to_s3(result, 
+                    bucket, 
+                    f'{identifier}.png', 
+                    aws_access_key_id, 
+                    aws_secret_access_key,
+                    logger)
+                if ok:
+                    os.remove(result)
+                else:
+                    shutil.move(result, f'/home/pi/biofeedback-jam/to_upload/')
             else:
                 shutil.move(result, f'/home/pi/biofeedback-jam/to_upload/')
-            
 
         for file_name in images:
             os.remove(file_name)
@@ -156,16 +157,21 @@ def main(argv):
     global aws_access_key_id
     global aws_secret_access_key
     global bucket
+    global save_mode
     
-    opts, args = getopt.getopt(argv,"hb:a:s:",["access_key=","secret_key="])
+    opts, args = getopt.getopt(argv,"hb:a:s:m:",["access_key=","secret_key=","mode="])
     for opt, arg in opts:
        if opt == '-h':
-          print ('mind_monitor_osc_server.py -a <access_key> -s <secret_key>')
+          print ('main.py -a <access_key> -s <secret_key> -m <mode>')
           sys.exit()
        elif opt in ("-a", "--access_key"):
           aws_access_key_id = arg
        elif opt in ("-s", "--secret_key"):
           aws_secret_access_key = arg
+       elif opt in ("-m", "--mode"):
+           save_mode = eval(opt)
+       
+
     app.run(debug=True, port=7000)
     
 
