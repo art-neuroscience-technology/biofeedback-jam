@@ -6,10 +6,19 @@ Capture EEG activity with Muse Headband and process it, transforming it to a vec
 You can find the code for training the GAN at [neuro-GAN](https://github.com/art-neuroscience-technology/neuro-GAN) 
 
 ## Results 
-At [results-images](slides/results-images) you can find a mosaic for generated images. 
+Images will be saved in S3 biofeedback bucket. In case images cannot be uploaded, they will be available at the folder to_upload. 
 
 ## Min Monitor
-[Mind Monitor](https://mind-monitor.com/) is an app for Muse Headband 
+[Mind Monitor](https://mind-monitor.com/) is an app for Muse Headband. You can capture EEG data with the app and stream it to an IP and port.  
+
+## Process
+
+Waves are saved in a list, every 10 seconds a file is saved, creating a csv file. The file contains 10 rows (one per second, calculated by the median of all the registries for that second) and by 10 columns.
+
+
+AF7_delta,AF7_theta,AF7_alpha,AF7_beta,AF7_gamma,AF8_delta,AF8_theta,AF8_alpha,AF8_beta,AF8_gamma
+
+So, the noise vector is created from this 10x10 matrix, transforming it to a vector. Thus, that is the input for the GAN.  
 
 ## Install
 Follow these instructions:
@@ -22,14 +31,14 @@ Follow these instructions:
 	export PATH=$HOME/.local/bin:$PATH
 ```
 
-## Process
 
-Waves are saved in a list, every 10 seconds a file is saved, creating a csv file. The file contains 10 rows (one per second, calculated by the median of all the registries for that second) and by 10 columns.
+## Configuration 
+- [Configure to start web browser]( 
+https://smarthomepursuits.com/open-website-on-startup-with-raspberry-pi-os/)
 
+- [Disable screensaver](https://www.radishlogic.com/raspberry-pi/how-to-disable-screen-sleep-in-raspberry-pi/) 
 
-AF7_delta,AF7_theta,AF7_alpha,AF7_beta,AF7_gamma,AF8_delta,AF8_theta,AF8_alpha,AF8_beta,AF8_gamma
-
-So, the noise vector is created from this 10x10 matrix, transforming it to a vector. Thus, that is the input for the GAN.  
+- Configure MindMonitor to stream data 
 
 ## Start the system 
 
