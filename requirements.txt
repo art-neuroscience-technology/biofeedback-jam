@@ -5,6 +5,7 @@ numpy
 pandas
 boto3
 flask
-glob
+glob2
 brother-ql
+qrcode
 

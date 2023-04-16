@@ -10,10 +10,8 @@ from pythonosc import udp_client
 
 
 #initialize clients
-listeners = [{ 'ip' : "172.22.130.228", 'port' : 5001 },
+listeners = [{ 'ip' : "3.86.148.14", 'port' : 5001 },
              { 'ip' : "54.167.162.144", 'port' : 5001 }] 
-
-
 
 
 for l in listeners:

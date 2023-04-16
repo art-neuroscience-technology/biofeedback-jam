@@ -54,30 +54,25 @@ brother_ql -b pyusb -p usb://<id> -m QL-800 print -l 62 test.png
 
 ## Start the system 
 
-[mind_monitor_ocs_server.py](mind_monitor_ocs_server.py): OCS server that listens incoming data from Muse Headband, captures the data and saves the EEG files. 
-
-```bash
-	python mind_monitor_osc_server.py --access_key <access_key> --secret_key <secret_key> --mode <mode> --ip 0.0.0.0 --port 5000
-```
-[slider/main.py](slider/main.py)
+[slider/app.py](slider/app.py)
 ```bash
     cd slider/
-	python main.py --access_key <access_key> --secret_key <secret_key> --mode <mode> 
+	python app.py 
 ```
-
-access_key and secret_key parameters are the keys to access S3 bucket and mode takes the value True or False, either if you want to save the information in S3 or not. 
 
 Open the web at [http://localhost:7000/show](http://localhost:7000/show)
 
 # Auxiliar scripts 
 
-[generate_images.py](generate_images.py): generate images with the GAN from saved EEG files 
+[src/generate_images.py](generate_images.py): generate images with the GAN from saved EEG files 
 
-[generator.py](generator.py): Code for generate a new image using the pre-trained model 
+[slider/generator.py](generator.py): Code for generate a new image using the pre-trained model 
 
-[ocs_emulator.py](ocs_emulator.py): emulates OCS Sender in order to simulate the traffic from the headband 
+[src/ocs_emulator.py](ocs_emulator.py): emulates OCS Sender in order to simulate the traffic from the headband 
 
-[upload_files.py](upload_files.py): to upload files to s3 
+[src/upload_files.py](upload_files.py): to upload files to s3 
+
+[src/util.py](upload_files.py): to upload files to s3 
 
 Execute the following to upload local files at eeg directory to s3 
 
@@ -90,3 +85,19 @@ Execute the following to upload files at to_upload directory to s3 bucket 'biofe
 ```bash
 	python upload_file.py -d to_upload -o biofeedback -a <access_key> -s <secret_key> 
 ```
+
+## Docker 
+
+1. Build docker 
+
+```bash
+	docker build -t biofeedback . 
+```
+
+```bash
+	docker run -ti --env-file=.env -p 7001:7000 -p 5001:5000 biofeedback
+```
+
+curl -X POST http://localhost:7000/start 
+curl -X POST http://localhost:7000/stop  
+
