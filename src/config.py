@@ -24,4 +24,4 @@ class Config:
         self.col_size = int(os.getenv('ROW_SIZE', '3'))
         self.save_mode_slider = bool(strtobool(os.getenv('SAVE_MODE_SLIDER', 'False')))
         self.save_mode_mind_monitor = bool(strtobool(os.getenv('SAVE_MODE_MIND_MONITOR', 'False')))
-        self.interval = int(os.getenv('INTERVAL', '0'))
+        self.interval = int(os.getenv('INTERVAL', '10'))

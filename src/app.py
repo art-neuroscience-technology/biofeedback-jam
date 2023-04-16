@@ -291,4 +291,4 @@ if __name__ == "__main__":
     thread2 = Thread(target=process_signal)
     thread2.start()
 
-    app.run(port=7001)
+    app.run(host='0.0.0.0', port=7001)

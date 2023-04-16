@@ -9,7 +9,6 @@ import subprocess
 import pandas as pd
 
 
-
 def save_grid(images, result_path, rowsize=6, colsize=3, result_size=(360, 640)):
         images = random.sample(images, rowsize*colsize)
         images = [Image.open(item) for item in images]
@@ -124,6 +123,7 @@ def check_values(df):
         return False
     if (df['AF7'].mean()==0.0 and df['AF8'].mean()==0.0):
         return False
+
     return True
 
 def transform_EEG(df, seconds, noise_shape, scale):

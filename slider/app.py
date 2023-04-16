@@ -52,7 +52,7 @@ SAVE_MODE_MIND_MONITOR = bool(strtobool(os.getenv('SAVE_MODE_MIND_MONITOR','Fals
 
 
 #interval in seconds
-INTERVAL = int(os.getenv('INTERVAL', '0'))
+INTERVAL = int(os.getenv('INTERVAL', '10'))
 
 # sensors ('TP9','AF7','AF8','TP10') 
 SENSORS=['AF7','AF8']
@@ -200,7 +200,7 @@ def show():
    global identifier
    images = get_images()
    if len(images)>0:
-       response = render_template('index.html', files=images, identifier=identifier)
+       response = render_template('index.html', files=list(map(lambda x: x.split('slider')[1] ,images)), identifier=identifier)
    else:
        response = render_template('index.html', identifier=identifier)
    return response  
@@ -246,14 +246,13 @@ def start():
 @app.route('/stop', methods=['GET', 'POST'])  
 def stop():
     global identifier
-    
+    global WAVES 
     if request.method == 'GET':
         return redirect(url_for('show'))
     try:
         images = get_images()
         print(f'Recieve END sing from identifier {identifier}')
   
-        
         #generate grid
         if (len(images) >= ROW_SIZE*COL_SIZE):
             if (GENERTE_QR):
@@ -288,6 +287,7 @@ def stop():
             else:
                 shutil.move(result, RESULT_GRID_PATH_BACKUP)
 
+        WAVES = []
         for file_name in images:
             os.remove(file_name)
 
