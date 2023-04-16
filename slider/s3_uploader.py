@@ -1,7 +1,5 @@
 #!/bin/bash/python3
 
-import os
-import sys, getopt
 import boto3
 from botocore.exceptions import NoCredentialsError
 

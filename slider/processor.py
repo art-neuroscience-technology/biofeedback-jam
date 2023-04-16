@@ -26,15 +26,15 @@ class Processor():
     
     def process_signal(self):
         while True:
+            print('Processing singal data')
             if self.start_timestamp!=-1:
                 save_name = ''
                 try:
                     df = self.process_waves()
 
                     self.start_timestamp = time.time()                
-                    
+                    print(f'Processing waves - {self.start_timestamp}')
                     if eeg_handler.check_values(df):
-                            
                         print(f'Processing waves for {self.start_timestamp}')
                         model_id = random.randint(0, self.max_model_id)
                         
@@ -50,5 +50,22 @@ class Processor():
                         print(f'{model_id},{model_id2}')
                 except Exception as ex:
                     print(f'Error:({save_name}) {ex}')
-            time.sleep(self.INTERVAL)
+            time.sleep(self.interval)
         
+    def reset(self):
+        self.start_timestamp = -1
+
+
+    def wave_handler(self, address, *args):
+        try:
+            print(f"Received OSC message: {address} {args}")
+            if self.start_timestamp==-1:
+                self.start_timestamp = time.time()
+
+            wave_name = address.split('/muse/elements/')[1].split('_')[0]
+            #keep ['AF7','AF8']
+            wave_value = [time.time(), wave_name] + [args[1],args[2]]
+            self.waves.append(wave_value)
+        except Exception as ex:
+            print(ex)
+    

@@ -32,13 +32,11 @@ Follow these instructions:
 ```
 
 
-## Configuration 
+## Configuring Raspberry 
 - [Configure to start web browser]( 
 https://smarthomepursuits.com/open-website-on-startup-with-raspberry-pi-os/)
 
 - [Disable screensaver](https://www.radishlogic.com/raspberry-pi/how-to-disable-screen-sleep-in-raspberry-pi/) 
-
-- Configure MindMonitor to stream data 
 
 - Brother QL configuration
 Add the following line at the file  /etc/udev/rules.d/99-com.rules
@@ -72,7 +70,7 @@ Open the web at [http://localhost:7000/show](http://localhost:7000/show)
 
 [src/upload_files.py](upload_files.py): to upload files to s3 
 
-[src/util.py](upload_files.py): to upload files to s3 
+[slider/utils.py](utils.py): to upload files to s3 
 
 Execute the following to upload local files at eeg directory to s3 
 
@@ -95,9 +93,5 @@ Execute the following to upload files at to_upload directory to s3 bucket 'biofe
 ```
 
 ```bash
-	docker run -ti --env-file=.env -p 7001:7000 -p 5001:5000 biofeedback
+	 docker run -ti --env-file=.env -p 0.0.0.0:7001:7001 -p 0.0.0.0:5001:5001/udp biofeedback
 ```
-
-curl -X POST http://localhost:7000/start 
-curl -X POST http://localhost:7000/stop  
-

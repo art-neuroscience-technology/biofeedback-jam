@@ -1,5 +1,6 @@
 from functools import reduce
 import numpy as np
+import pandas as pd 
 
 def check_values(df):
     if df.empty:
