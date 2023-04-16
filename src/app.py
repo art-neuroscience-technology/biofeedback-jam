@@ -19,49 +19,32 @@ import utils
 import os
 import random
 import sys
- 
+import config 
+import processor
+import file_manager
 
-S3_BUCKET = os.getenv('S3_BUCKET', 'biofeedback')
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID', '')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY', '')
-
-MODELS_PATH = os.getenv('MODELS_PATH')
-IMAGES_PATH = os.getenv('IMAGES_PATH')
-
-QRS_PATH = os.getenv('QRS_PATH', '/app/qrs')
-QRS_BACKUP_PATH = os.getenv('QRS_BACKUP_PATH', '/app/backup_qrs')
-RESULT_GRID_PATH = os.getenv('RESULT_GRID_PATH', '/app/result/')
-RESULT_GRID_PATH_BACKUP = os.getenv('RESULT_GRID_PATH_BACKUP', '/app/to_upload/')
-LOGOS_PATH = os.getenv('LOGOS_PATH', '/app/slider/logos')
-
-QL_PATH=os.getenv('QL_PATH', '')
-GENERTE_QR =  bool(strtobool(os.getenv('GENERTE_QR','False'))) 
-
-RESULT_EEG_PATH = os.getenv('RESULT_EEG_PATH', '/app/eeg-files')
-EEG_BACKUP_FOLDER = os.getenv('EEG_BACKUP_FOLDER', '/app/eeg/')
-
-PORT = int(os.getenv('PORT_SLIDER', 7000))
-OSC_IP=os.getenv('IP', '0.0.0.0')
-OSC_PORT = int(os.getenv('PORT', '5001'))
-
-ROW_SIZE = int(os.getenv('ROW_SIZE', '6'))
-COL_SIZE = int(os.getenv('ROW_SIZE', '3'))
-
-SAVE_MODE_SLIDER = bool(strtobool(os.getenv('SAVE_MODE_SLIDER','False')))
-SAVE_MODE_MIND_MONITOR = bool(strtobool(os.getenv('SAVE_MODE_MIND_MONITOR','False')))
-
-
-#interval in seconds
-INTERVAL = int(os.getenv('INTERVAL', '0'))
+config = config.Config()
 
 # sensors ('TP9','AF7','AF8','TP10') 
 SENSORS=['AF7','AF8']
-
-
 start_timestamp = -1
 identifier = -1
-image_generator = None
-max_model_id = 0
+image_generator = Generator(models_path=config.models_path, images_path=config.images_path)
+
+max_model_id = image_generator.get_models_count() -1
+
+file_managment = file_manager.FileManager()
+eeg_processor = processor.Processor(max_model_id=max_model_id, 
+                    save_mode=config.save_mode_mind_monitor,
+                     aws_access_key_id=config.aws_access_key_id, 
+                     aws_secret_access_key=config.aws_secret_access_key,
+                     file_manager=file_managment,
+                     interval=config.interval,
+                     sensors=SENSORS,
+                     image_generator=image_generator)
+
+
+
 WAVES = [] 
 
 app = Flask(__name__)
@@ -308,4 +291,4 @@ if __name__ == "__main__":
     thread2 = Thread(target=process_signal)
     thread2.start()
 
-    app.run(host='0.0.0.0', port=7001)
+    app.run(port=7001)
