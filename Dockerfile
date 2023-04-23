@@ -6,11 +6,11 @@ RUN apt-get update && apt-get install -y vim curl
 # Install TensorFlow Lite
 RUN pip install tflite-runtime
 
-COPY slider /app/slider
-
 COPY requirements.txt /app/requirements.txt
 
 RUN pip install -r  /app/requirements.txt
+
+COPY slider /app/slider
 
 EXPOSE 7001/tcp 5001/udp 
 
