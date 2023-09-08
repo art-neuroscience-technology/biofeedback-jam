@@ -31,8 +31,6 @@ max_model_id = 0
 eeg_processor = None
 
 
-WAVES = [] 
-
 app = Flask(__name__)
 
 
@@ -173,6 +171,11 @@ def stop():
             utils.save_grid(images, result, config.row_size, config.col_size)
             
             if (config.save_mode_slider):
+                print(result)
+                print(config.s3_bucket)
+                print(f'{identifier}.png')
+                print(config.aws_access_key_id, 
+                    config.aws_secret_access_key)
                 ok = s3_uploader.upload_to_s3(result, 
                     config.s3_bucket, 
                     f'{identifier}.png', 
@@ -181,6 +184,7 @@ def stop():
                 if ok:
                     os.remove(result)
                 else:
+                    print('Error while uploading file to s3')
                     shutil.move(result, config.result_grid_path_backup)
             else:
                 shutil.move(result, config.result_grid_path_backup)

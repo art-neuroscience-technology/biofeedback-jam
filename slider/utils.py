@@ -4,7 +4,7 @@ from threading import Timer
 from functools import reduce
 import random
 import qrcode
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import subprocess
 import pandas as pd
 import os 
@@ -61,7 +61,7 @@ def build_image_29mm(identifier, path, logos_path):
 
     im1 = Image.new('RGB', final_size, color = (255,255,255))
 
-    im2 = Image.open(f'{logos_path}/{identifier}.png') #330x330 
+    im2 = Image.open(f'{path}') #330x330 
     im2 = im2.resize((300,300))
 
     im3 = Image.open(f'{logos_path}/logoANT.png') #996x580
@@ -83,6 +83,7 @@ def build_image_29mm(identifier, path, logos_path):
     im1.paste(im4, box=(58,552))
     im1.paste(im5, box=(145,814))
     im1.save(path)
+
     
 def build_image_62mm(identifier, path, logos_path):        
     final_size = (696,1109)
@@ -92,26 +93,31 @@ def build_image_62mm(identifier, path, logos_path):
     im2 = Image.open(f'{logos_path}/logoANT.png') #1444x652
     im2 = im2.resize((577, 260))
 
-    im3 = Image.open(f'{logos_path}/{identifier}.png') #330x330 
+    im3 = Image.open(f'{path}') #330x330 
 
     im4 = Image.open(f'{logos_path}/logoRS.png') #996x580
-    im4 = im4.resize((498, 290))
+    im4 = im4.resize((480, 279))
 
     im5 = Image.open(f'{logos_path}/logoDaofy.png') #717x174
-    im5 = im5.resize((478, 116))
+    im5 = im5.resize((468, 116))
 
     im1.paste(im2, box=(62,4))
     im1.paste(im3, box=(185,266))
     im1.paste(im4, box=(98,598))
-    im1.paste(im5, box=(108,894))
-    im1.save(path)
+    im1.paste(im5, box=(108,884))
 
+    I1 = ImageDraw.Draw(im1)
+    font = ImageFont.truetype("/home/pi/biofeedback-jam/slider/Verdana.ttf",20)
+
+    I1.text((120, 1030), f"Scan your QR code and get your NFT!\nidentifier:{identifier}",
+            font=font,fill=(0, 0, 0))
+    im1.save(path)
 
 def print_image(image_path, size, QL_PATH):
     
     print(f'Printing {image_path}')
     try:
-        result = subprocess.run([QL_PATH,
+        result = subprocess.run(["sudo", QL_PATH,
                     "-b","pyusb",
                     "-p","usb://0x04f9:0x209b",
                     "-m","QL-800",

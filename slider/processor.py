@@ -16,6 +16,7 @@ class Processor():
           self.image_generator = image_generator
 
     def process_waves(self):
+        print('Processing waves')
         df = pd.DataFrame()
         try:
             df = pd.DataFrame(self.waves, columns=['timestamp', 'wave_name'] + self.sensors)
@@ -35,7 +36,6 @@ class Processor():
                     self.start_timestamp = time.time()                
                     print(f'Processing waves - {self.start_timestamp}')
                     if eeg_handler.check_values(df):
-                        print(f'Processing waves for {self.start_timestamp}')
                         model_id = random.randint(0, self.max_model_id)
                         
                         save_name = f'{self.start_timestamp}'
@@ -58,7 +58,7 @@ class Processor():
 
     def wave_handler(self, address, *args):
         try:
-            print(f"Received OSC message: {address} {args}")
+            #print(f"Received OSC message: {address} {args}")
             if self.start_timestamp==-1:
                 self.start_timestamp = time.time()
 

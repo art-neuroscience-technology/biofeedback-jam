@@ -10,7 +10,7 @@ from pythonosc import udp_client
 
 
 #initialize clients
-listeners = [{ 'ip' : "127.0.0.1", 'port' : 5002 },
+listeners = [{ 'ip' : "127.0.0.1", 'port' : 5000 },
              { 'ip' : "127.0.0.1", 'port' : 5001 }] 
 
 
@@ -18,7 +18,7 @@ for l in listeners:
     l['client'] = udp_client.SimpleUDPClient(l['ip'], l['port'])
     
 ip = "0.0.0.0"
-port = 5000
+port = 5002
 
 def forward_message(address: str, *args):
     global listeners

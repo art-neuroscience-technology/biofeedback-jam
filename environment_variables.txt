@@ -1,27 +1,27 @@
-S3_BUCKET=biofeedback
-AWS_ACCESS_KEY_ID= 
-AWS_SECRET_ACCESS_KEY= 
+export S3_BUCKET=biofeedback
+export AWS_ACCESS_KEY_ID= 
+export AWS_SECRET_ACCESS_KEY=
 
-RESULT_EEG_PATH=/app/eeg-files
-EEG_BACKUP_FOLDER=/app/eeg/
+export RESULT_EEG_PATH=/home/pi/biofeedback-jam/slider/eeg-files
+export EEG_BACKUP_FOLDER=/app/eeg/
 
-MODELS_PATH=/app/slider/tflite
+export MODELS_PATH=/home/pi/biofeedback-jam/slider/tflite
 
-IMAGES_PATH=/app/slider/static/images
+export IMAGES_PATH=/home/pi/biofeedback-jam/slider/static/images
 
-QRS_PATH=/app/qrs
-QRS_BACKUP_PATH=/app/backup_qrs
-QL_PATH=/home/pi/.local/bin/brother_ql
+export QRS_PATH=/home/pi/biofeedback-jam/slider/qrs/
+export QRS_BACKUP_PATH=/home/pi/biofeedback-jam/slider/backup_qrs
+export QL_PATH=/home/pi/.local/bin/brother_ql 
 
-RESULT_GRID_PATH=/app/result/
-RESULT_GRID_PATH_BACKUP=/app/to_upload/
+export RESULT_GRID_PATH=/home/pi/biofeedback-jam/slider/result/
+export RESULT_GRID_PATH_BACKUP=/home/pi/biofeedback-jam/slider/to_upload/
 
-OSC_IP=0.0.0.0
-OSC_PORT=5001
+export OSC_IP=0.0.0.0
+export OSC_PORT=5002
 
-SAVE_MODE_MIND_MONITOR=False
-SAVE_MODE_SLIDER=False
-GENERTE_QR=False
+export SAVE_MODE_MIND_MONITOR=False
+export SAVE_MODE_SLIDER=True
+export GENERTE_QR=True
 
-LOGOS_PATH=/app/slider/logos
+export LOGOS_PATH=/home/pi/biofeedback-jam/slider/logos
 
