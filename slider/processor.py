@@ -36,18 +36,21 @@ class Processor():
                     self.start_timestamp = time.time()                
                     print(f'Processing waves - {self.start_timestamp}')
                     if eeg_handler.check_values(df):
-                        model_id = random.randint(0, self.max_model_id)
                         
                         save_name = f'{self.start_timestamp}'
                         if (self.save_mode): #save eeg result
                             self.file_manager.save_eeg(df, save_name)
                         
-                        df = eeg_handler.transform_EEG(df, self.interval, noise_shape=(1,100), scale=2)
+                        df = eeg_handler.transform_EEG(df,
+                                                       self.interval,
+                                                       noise_shape=(1,100),
+                                                       scale=2)
                         print('Generate image')
+                        model_id = random.randint(0, self.max_model_id)
                         self.image_generator.predict(df, model_id, save_name)
-                        model_id2 = (model_id+1) % self.max_model_id
-                        self.image_generator.predict(df, model_id2, f'{save_name}-2')
-                        print(f'{model_id},{model_id2}')
+                        model_id = (model_id+1) % self.max_model_id
+                        self.image_generator.predict(df, model_id, f'{save_name}-2')
+
                 except Exception as ex:
                     print(f'Error:({save_name}) {ex}')
             time.sleep(self.interval)

@@ -22,6 +22,13 @@ if __name__ == "__main__":
 
   client = udp_client.SimpleUDPClient(args.ip, args.port)
 
+`'''The absolute band power for a given frequency range
+(for instance, alpha, i.e. 9-13Hz) is the logarithm of the sum
+of the Power Spectral Density of the EEG data over that frequency range.
+They are provided for each of the four to six channels/electrode sites on Muse.
+Since it is a logarithm, some of the values will be negative
+(i.e. when the absolute power is less than 1)
+They are given on a log scale, units are Bels.'''
 while(True):
   for waves_name in waves_names:
     client.send_message(f"/muse/elements/{waves_name}_absolute", 
