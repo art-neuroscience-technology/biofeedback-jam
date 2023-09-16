@@ -18,6 +18,8 @@ import os
 import config 
 import processor
 import file_manager
+from pythonosc import udp_client
+
 
 config = config.Config()
 
@@ -33,6 +35,11 @@ eeg_processor = None
 
 app = Flask(__name__)
 
+client = udp_client.SimpleUDPClient("127.0.0.1", 5003)
+
+def send_colors(colors):
+    global client
+    client.send_message('/colors', colors)
 
 """Creates a map between paths and actions"""  
 def get_dispatcher():
@@ -99,6 +106,10 @@ def show():
    images = utils.get_images(config.images_path)
    if len(images)>0:
        files = list(map(lambda x: x.split('slider/')[1] ,images))
+       last_image = utils.get_latest_image(config.images_path)
+       if last_image is not None:
+           colors = utils.get_colors_image(last_image)
+           send_colors(colors)
        response = render_template('index.html', files=files, identifier=identifier)
    else:
        response = render_template('index.html', identifier=identifier)
@@ -150,7 +161,7 @@ def stop():
         print(f'Recieve END sing from identifier {identifier}')
   
         #generate grid
-        if (len(images) >= config.row_size*config.col_size):
+        if identifier!=-1 and (len(images) >= config.row_size*config.col_size):
             if (config.generate_qr):
                 print('Generate grid')
                 

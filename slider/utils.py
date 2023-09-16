@@ -9,6 +9,21 @@ import subprocess
 import pandas as pd
 import os 
 import glob
+from colorthief import ColorThief
+
+def get_colors_image(image):
+    color_thief = ColorThief(image)
+    palette = np.concatenate(color_thief.get_palette(color_count=3))/255
+    return palette.tolist()
+    
+def get_latest_image(directory_path):
+    files = glob.glob(os.path.join(directory_path, "*"))
+    files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
+    if files:
+        latest_file = files[0]
+        return latest_file
+    else:
+        return None 
 
 def create_dir(directory): 
     if not os.path.exists(directory):
